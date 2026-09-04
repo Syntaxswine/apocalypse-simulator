@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>APOCALYPSE SIMULATOR — how the world is likely to end, from the published record</title>
+<meta name="description" content="A competing-hazards Monte Carlo over the real global-catastrophic-risk literature. Every rate is sourced, every source is listed, and the model shows its own weaknesses.">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23e9e6dc'/><circle cx='8' cy='9' r='4.2' fill='none' stroke='%23a3402c' stroke-width='1.2'/><path d='M1 4h14' stroke='%232e2b25' stroke-width='1'/></svg>">
+</head>
+<body>
+
+<header>
+  <h1>APOCALYPSE SIMULATOR</h1>
+  <div class="thesis">
+    A competing-hazards Monte Carlo built on the published catastrophic-risk record.
+    Every rate below comes from a citation you can check. Drag the assumptions and
+    watch which ending wins.
+  </div>
+  <div class="spacer"></div>
+  <div class="stamp" id="stamp">—</div>
+</header>
+
+<main>
+
+<aside>
+
+  <section>
+    <h2>Run</h2>
+    <div class="row">
+      <label for="seed" title="Every run is reproducible from its seed. Same seed and same settings give the same history, year by year.">seed</label>
+      <input type="text" id="seed" value="1">
+    </div>
+    <div class="row">
+      <label for="runs" title="Monte Carlo trials. More trials means a tighter estimate of the tail — which is the only part of this that matters.">trials</label>
+      <select id="runs">
+        <option>1000</option>
+        <option selected>4000</option>
+        <option>12000</option>
+        <option>40000</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="horizon" title="How far ahead to simulate. The literature's headline figures are almost all 'by 2100'.">horizon</label>
+      <select id="horizon">
+        <option value="75">to 2100 (75y)</option>
+        <option value="100" selected>to 2125 (100y)</option>
+        <option value="200">to 2225 (200y)</option>
+        <option value="500">to 2525 (500y)</option>
+        <option value="1000">to 3025 (1000y)</option>
+      </select>
+    </div>
+    <div class="btnrow">
+      <button class="primary" id="run">RUN</button>
+      <button id="reroll" title="New seed, same settings">reroll</button>
+    </div>
+    <div class="btnrow">
+      <button id="share" title="Copy a link that reproduces exactly this run">copy link</button>
+      <button id="reset" title="Back to the sourced real-world values">defaults</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Preset</h2>
+    <div class="row">
+      <label for="preset" title="Each preset is a documented state of the world, not a mood.">world</label>
+      <select id="preset"></select>
+    </div>
+    <p class="hint tight" id="presetNote"></p>
+  </section>
+
+  <section>
+    <h2>Assumptions <span class="h2note" id="dirty"></span></h2>
+    <div id="knobs"></div>
+  </section>
+
+  <section>
+    <h2>Hazards on the board <span class="h2note">p/yr</span></h2>
+    <div class="toggles" id="toggles"></div>
+    <div class="btnrow">
+      <button id="allOn">all on</button>
+      <button id="allOff">all off</button>
+    </div>
+  </section>
+
+</aside>
+
+<div id="stage">
+
+  <section class="wide">
+    <h2>The verdict <span class="h2note" id="verdictNote"></span></h2>
+    <div class="verdict" id="verdict"></div>
+    <div id="verdictProse"></div>
+  </section>
+
+  <section class="wide">
+    <h2>How it ends <span class="h2note">share of runs that reached each outcome</span></h2>
+    <p class="note" id="endsIntro"></p>
+    <h3>What causes the first catastrophe <span class="hint">(any event killing over 10% of humanity)</span></h3>
+    <div class="bars" id="barsFirst"></div>
+    <h3>What actually finishes it <span class="hint">(only the runs that ended)</span></h3>
+    <div class="bars" id="barsEnd"></div>
+    <div class="legend" id="catLegend"></div>
+  </section>
+
+  <section class="wide">
+    <h2>Survival <span class="h2note">P(humanity still here) against year</span></h2>
+    <div class="chartwrap"><canvas id="cSurvival"></canvas></div>
+    <div class="legend">
+      <span><i style="background:#2e2b25"></i>this model</span>
+      <span><i style="background:#a3402c"></i>Ord 2020, existential catastrophe by 2120</span>
+      <span><i style="background:#547a49"></i>XPT superforecasters, extinction by 2100</span>
+      <span><i style="background:#9a7326"></i>XPT domain experts, extinction by 2100</span>
+    </div>
+    <p class="note" id="survivalNote"></p>
+  </section>
+
+  <section class="wide">
+    <h2>Population <span class="h2note">median, with the 25–75 and 5–95 percentile envelopes</span></h2>
+    <div class="chartwrap"><canvas id="cFan"></canvas></div>
+    <p class="note" id="fanNote"></p>
+  </section>
+
+  <section class="wide">
+    <h2>One run, in full <span class="h2note" id="runSeedNote"></span></h2>
+    <div class="chartwrap"><canvas id="cRun"></canvas></div>
+    <div class="legend">
+      <span><i style="background:#2e2b25"></i>world population (bn, left)</span>
+      <span><i style="background:#416078"></i>industrial capacity (right)</span>
+      <span><i style="background:#8a6a4e40"></i>growing-season sunlight lost</span>
+    </div>
+    <div class="timeline" id="timeline"></div>
+  </section>
+
+  <section class="wide">
+    <h2>The board <span class="h2note">every hazard, its rate, its mechanism, and where the number came from</span></h2>
+    <p class="note">
+      Rates are per year. <span class="badge obs">observed</span> means a directly counted
+      frequency, <span class="badge geo">geological</span> a recurrence read off the rock or ice
+      record, <span class="badge model">modelled</span> a physical calculation,
+      <span class="badge elic">elicited</span> an expert or forecaster survey, and
+      <span class="badge auth">estimated</span> a figure this project had to construct because
+      no published one exists. The last of those is the one to be suspicious of.
+    </p>
+    <div id="cards"></div>
+  </section>
+
+  <section class="wide">
+    <h2>Against the published estimates <span class="h2note">is this model saying something the field does not?</span></h2>
+    <p class="note" id="benchIntro"></p>
+    <div id="bench"></div>
+  </section>
+
+  <section class="wide">
+    <h2>Deep time <span class="h2note">the ends that are not risks but schedules</span></h2>
+    <p class="note">
+      Everything above is a dice roll. Everything below is a calendar. If humanity gets
+      through the hazardous part, these are what is left — and the first of them is not
+      the Sun going out, but the Sun getting brighter.
+    </p>
+    <div class="deeptime" id="deeptime"></div>
+  </section>
+
+  <section class="wide">
+    <h2>How this model is wrong <span class="h2note">read this before quoting a number off it</span></h2>
+    <div id="honesty"></div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <p id="footNote"></p>
+  <p class="hint">
+    Built as a static page: no build step, no dependencies, no network calls. The engine is
+    <code>js/model.js</code>, the sourced numbers are <code>data/hazards.json</code>, and the
+    verification harness is <code>tools/check.mjs</code>. Everything is checkable, and the
+    citations are meant to be checked.
+  </p>
+</footer>
+
+<div id="busy">RUNNING…</div>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

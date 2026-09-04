@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "apocalypse", "runtimeExecutable": "node", "runtimeArgs": ["tools/serve.mjs", "8117"], "port": 8117 }
+  ]
+}

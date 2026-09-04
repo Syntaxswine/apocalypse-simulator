@@ -1,0 +1,11 @@
+{
+  "name": "apocalypse-simulator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A competing-hazards Monte Carlo over the published global-catastrophic-risk record.",
+  "scripts": {
+    "check": "node tools/check.mjs",
+    "serve": "node tools/serve.mjs"
+  }
+}
