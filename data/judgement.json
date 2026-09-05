@@ -852,6 +852,13 @@
    },
    "rateMods": [
     {
+     "var": "aiPrior",
+     "op": "pow",
+     "ref": 1,
+     "coef": 1,
+     "why": "WHOSE PRIOR. The largest disagreement in this entire literature is not between the model and the field, it is inside the field: in the 2023 Existential Risk Persuasion Tournament, superforecasters and AI domain experts were made to argue with each other at length and came away differing by more than an order of magnitude on exactly this question. This knob is that disagreement, exposed rather than resolved. The model's default sits at the superforecaster end because that is where the calibrated-forecasting evidence points; drag it and you are running somebody else's belief"
+    },
+    {
      "var": "aiCap",
      "op": "pow",
      "ref": 1,
@@ -1174,7 +1181,17 @@
      "years": 10,
      "why": "ashfall and a collapsing demand base"
     }
-   ]
+   ],
+   "rateMods": [
+    {
+     "var": "shadowFactor",
+     "op": "pow",
+     "ref": 1,
+     "coef": 1,
+     "why": "THE ONLY SHADOW-ELIGIBLE HAZARD ON THIS BOARD, and working out why is more interesting than the correction itself. Cirkovic, Sandberg & Bostrom restrict the effect to hazards that (1) could have ended our lineage, (2) are uncertain, and (3) have rates estimated LARGELY FROM THE TERRESTRIAL RECORD. Almost nothing here qualifies. Every anthropogenic hazard is excluded outright — there is no censored record for AI or engineered pathogens. The impact rates come from telescopic size-frequency distributions, not from our survival. Supernova and gamma-ray-burst rates are inferred from other galaxies, and the stellar-encounter rate from the observed local mass function, all three of which those same authors explicitly exempt. And their own formula sends the correction to 1 for any event we could have survived, which rules out every non-terminal tier. What is left is the supereruption return period read off the geological record. One hazard, out of thirty-one"
+    }
+   ],
+   "shadowEligible": true
   },
   "synthetic-nitrogen-dependence": {
    "anthropogenic": true,

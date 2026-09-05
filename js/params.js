@@ -105,6 +105,12 @@ export const KNOBS = [
     fmt: (v) => (v * 100).toFixed(1) + '%',
   },
   {
+    id: 'aiPrior', group: 'Artificial intelligence', label: 'whose prior', unit: '×',
+    def: 1, min: 0.4, max: 30, step: 0.1, scale: 'log',
+    anchor: 'The biggest disagreement in the field, made into a control. Stops MEASURED with tools/calibrate-prior.mjs, not asserted: 0.75× reproduces the XPT superforecasters’ 0.38% AI extinction by 2100; 6× reproduces the XPT domain experts’ 3%; 7× reproduces Ord’s 1-in-10 AI existential catastrophe by 2120. The default of 1× is the researchers’ own annualised rate and sits just above the superforecasters.',
+    fmt: (v) => v.toFixed(2) + '×',
+  },
+  {
     id: 'alignmentEffort', group: 'Artificial intelligence', label: 'safety effort', unit: '×',
     def: 1, min: 0.25, max: 6, step: 0.25, scale: 'log',
     anchor: 'Multiplier on alignment and governance investment relative to today. Enters as a divisor on the conditional severity, not on the event rate.',
@@ -119,11 +125,19 @@ export const KNOBS = [
     fmt: (v) => (v * 100).toFixed(0) + '%',
   },
 
+  // ── epistemics ──────────────────────────────────────────────────────────
+  {
+    id: 'shadowFactor', group: 'Epistemics', label: 'anthropic shadow', unit: 'η',
+    def: 1, min: 1, max: 6, step: 0.1, scale: 'lin',
+    anchor: 'We cannot have observed a catastrophe that killed us, so rates read off the terrestrial record may be systematically too low. Ćirković, Sandberg & Bostrom (2010) work an example giving η = 5.5; Thomas (2024) argues the effect is absent and η = 1. The default is 1 — the sceptical position — because a correction that only ever raises risk is a doom generator. It applies to ONE hazard on this board; the card says which and why.',
+    fmt: (v) => v.toFixed(1) + '×',
+  },
+
   // ── recovery ────────────────────────────────────────────────────────────
   {
     id: 'mvp', group: 'Recovery', label: 'viable population', unit: 'people',
     def: 5000, min: 100, max: 500000, step: 100, scale: 'log',
-    anchor: 'Population floor below which the model treats recovery as failed. The published minimum-viable-population work clusters near a few thousand, but it was written about wildlife, not about a species with agriculture and books. One of the weakest numbers here.',
+    anchor: 'Population floor below which recovery is treated as failed. The default of 5,000 is also the XPT’s own definition of extinction, so the model’s headline is directly comparable. The sourced band: ~100 as a hard floor; 1,280 breeding individuals, which Hu et al. (2023) find our ancestors actually survived at for 117,000 years; 4,169, the median wild-vertebrate MVP from Traill et al. (2007) across 212 species; and roughly 7,000–10,000 to keep evolutionary potential (Frankham et al. 2014). Every one of those was measured on wild populations under natural selection, not on a species with agriculture, medicine and books — an extrapolation the authors did not make. One of the weakest numbers here, which is why it is a slider.',
     fmt: (v) => v >= 1000 ? (v / 1000).toFixed(v >= 10000 ? 0 : 1) + 'k' : String(Math.round(v)),
   },
   {
@@ -140,7 +154,15 @@ export const CONST = {
   // UN World Population Prospects 2024, medium variant.
   pop0: 8.2,
   popPeak: 10.3,
-  popGrowth: 0.0085,
+  // Logistic intrinsic rate, SOLVED rather than guessed. It has to satisfy two
+  // things at once: reproduce today's ~0.85%/yr observed growth at P = 8.2, and
+  // land on the UN medium variant's ~10.3 bn plateau in the mid-2080s. Because
+  // the population is already within a quarter of its own ceiling, those two
+  // constraints fix r near 0.0417 — and the 0.0085 first used here (mistaking
+  // the observed growth RATE for the logistic parameter) grew the counterfactual
+  // baseline to only 9.29 bn by 2126, which quietly understated every "against
+  // the people who would otherwise have lived" figure on the page.
+  popGrowth: 0.0417,
   // Observed warming above the 1850–1900 baseline, mid-2020s.
   warming0: 1.35,
   warheads0: 12241,
@@ -170,6 +192,24 @@ export const PRESETS = [
     name: 'The careless century',
     note: 'Arsenals rebuilt, screening abandoned, reserves run down to just-in-time, a high-emissions pathway, and capability racing ahead of everything meant to contain it. Each individual setting here has a real-world precedent within the last fifty years.',
     over: { warheadTarget: 25000, crisisRate: 2.5, cityTargeting: 0.7, reserveDays: 45, tradeOpenness: 0.95, resilientFoodShare: 0, synthScreening: 0.25, bioGrowth: 0.07, aiGrowth: 0.16, alignmentEffort: 0.35, warmingRate: 0.05, sensitivityScale: 1.3, gridHardening: 0.02 },
+  },
+  {
+    id: 'superforecaster',
+    name: 'The superforecasters’ world',
+    note: 'The AI hazard set to the median of the calibrated generalist forecasters in the 2023 Existential Risk Persuasion Tournament — people with a measured track record on other questions, who came away from the tournament believing AI extinction risk is around a third of a percent this century. Everything else unchanged.',
+    over: { aiPrior: 0.75 },
+  },
+  {
+    id: 'domainexpert',
+    name: 'The domain experts’ world',
+    note: 'The same knob set to the median of the AI domain experts in the same tournament — roughly 3% AI extinction by 2100, about eight times the superforecasters. The two groups argued at length and did not converge. This preset and the one above are the same model reading the same literature; the only difference is whose number you believe.',
+    over: { aiPrior: 6 },
+  },
+  {
+    id: 'precipice',
+    name: 'Ord’s Precipice',
+    note: 'AI set to reproduce The Precipice’s 1-in-10 for AI existential catastrophe by 2120. Note this still does not reach Ord’s 1-in-6 total, and the gap is a real disagreement rather than a bug: his engineered-pandemic row (1 in 30) and his “unforeseen anthropogenic risks” row (1 in 30) are both far above anything this model can source, and the second of those is by construction unmodellable.',
+    over: { aiPrior: 7 },
   },
   {
     id: 'quiet',

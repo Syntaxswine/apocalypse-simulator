@@ -2146,6 +2146,13 @@
    },
    "rateMods": [
     {
+     "var": "aiPrior",
+     "op": "pow",
+     "ref": 1,
+     "coef": 1,
+     "why": "WHOSE PRIOR. The largest disagreement in this entire literature is not between the model and the field, it is inside the field: in the 2023 Existential Risk Persuasion Tournament, superforecasters and AI domain experts were made to argue with each other at length and came away differing by more than an order of magnitude on exactly this question. This knob is that disagreement, exposed rather than resolved. The model's default sits at the superforecaster end because that is where the calibrated-forecasting evidence points; drag it and you are running somebody else's belief"
+    },
+    {
      "var": "aiCap",
      "op": "pow",
      "ref": 339.226,
@@ -3008,7 +3015,15 @@
     "trend": "Flat over the coming century. No anthropogenic mechanism alters magma supply on that timescale, and Lin et al. find the large-eruption frequency constant across 60-9 ka. One weak upward mechanism is worth recording but not applying: Lin et al. observe a marked rise in large Northern Hemisphere eruptions during the deglacial period 16-9 ka and attribute it to isostatic unloading of the NH ice sheets, so sustained large-scale ice loss is a plausible long-run forcing of volcanism - but the implied lag is millennial and the effect on this century's M8 rate is negligible. What does change is exposure: a globally integrated, low-inventory, mid-latitude-dependent food system is more vulnerable to a multi-year cold shock than the subsistence agriculture of any previous century, even as total stored calories and technical adaptive capacity are far greater.",
     "cap": null
    },
-   "rateMods": [],
+   "rateMods": [
+    {
+     "var": "shadowFactor",
+     "op": "pow",
+     "ref": 1,
+     "coef": 1,
+     "why": "THE ONLY SHADOW-ELIGIBLE HAZARD ON THIS BOARD, and working out why is more interesting than the correction itself. Cirkovic, Sandberg & Bostrom restrict the effect to hazards that (1) could have ended our lineage, (2) are uncertain, and (3) have rates estimated LARGELY FROM THE TERRESTRIAL RECORD. Almost nothing here qualifies. Every anthropogenic hazard is excluded outright — there is no censored record for AI or engineered pathogens. The impact rates come from telescopic size-frequency distributions, not from our survival. Supernova and gamma-ray-burst rates are inferred from other galaxies, and the stellar-encounter rate from the observed local mass function, all three of which those same authors explicitly exempt. And their own formula sends the correction to 1 for any event we could have survived, which rules out every non-terminal tier. What is left is the supereruption return period read off the geological record. One hazard, out of thirty-one"
+    }
+   ],
    "sevMods": [],
    "tiers": [
     {

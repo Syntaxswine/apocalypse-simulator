@@ -85,7 +85,17 @@ function advanceTrends(w, cfg, rng) {
   // world is functioning. A wrecked civilisation does not follow a demographic
   // projection.
   const carrying = cfg.popPeak * (0.25 + 0.75 * w.industry);
-  const growth = cfg.popGrowth * w.pop * (1 - w.pop / carrying);
+  // The growth RATE is damped by industrial capacity as well as the ceiling.
+  // Without this the model snaps back far too fast, and the empirical anchor is
+  // unambiguous: Jedwab, Johnson & Koyama find a European city facing 10%
+  // Black Death mortality was still 8.7% below its pre-plague size fifty years
+  // later, and a whole region 13-15% below — which works out at an intrinsic
+  // post-shock growth of roughly 0.03% a year, some thirty times slower than
+  // the undamaged rate. Winchester never recovered at all; Florence took
+  // centuries. Populations do not snap back, and a model that lets them
+  // quietly converts every catastrophe into a dip.
+  const vitality = 0.05 + 0.95 * w.industry;
+  const growth = cfg.popGrowth * vitality * w.pop * (1 - w.pop / carrying);
   w.pop = Math.max(0, w.pop + growth);
   w.popBaseline = Math.min(
     cfg.popPeak,
@@ -472,7 +482,7 @@ export function makeEnsemble(cfg, n) {
   const popAt = [];
   const yearOfEnd = [];
   const survivalByYear = new Float64Array(H).fill(0);
-  let i = 0, extinct = 0, lockedIn = 0, collapsed = 0, scratched = 0;
+  let i = 0, extinct = 0, lockedIn = 0, collapsed = 0, scratched = 0, baselineEnd = 0;
 
   return {
     get filled() { return i; },
@@ -499,6 +509,10 @@ export function makeEnsemble(cfg, n) {
       if (r.worstEvent > 0.1) scratched++;
       drawdowns.push(r.worstDrawdown);
       worstEvents.push(r.worstEvent);
+      // Deterministic and identical across runs, but reported from the run
+      // rather than asserted, so the verdict panel and the narrated history can
+      // never quote different counterfactuals.
+      baselineEnd = r.popBaseline;
       popAt.push(r.pop);
       const first = r.events.find((e) => e.killedFraction > 0.1);
       if (first) firstCatastrophe.set(first.hazard, (firstCatastrophe.get(first.hazard) || 0) + 1);
@@ -523,6 +537,7 @@ export function makeEnsemble(cfg, n) {
 
       return {
         n: used,
+        baselineEnd,
         extinct, lockedIn, collapsed, scratched,
         pLockIn: lockedIn / used,
         pEnded: (extinct + lockedIn) / used,

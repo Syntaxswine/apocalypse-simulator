@@ -270,7 +270,7 @@ function render() {
     cell('extinction', pct(r.pExtinct, 2), '', seTxt, r.pExtinct > 0.01),
     cell('lock-in', pct(r.pLockIn, 2), '', 'alive, with no future', r.pLockIn > 0.01),
     cell('median population in ' + endYear, r.popMedian.toFixed(2), 'bn',
-      `against ${CONST.popPeak.toFixed(1)} bn if nothing happened`),
+      `against ${r.baselineEnd.toFixed(2)} bn if nothing happened`),
     cell('worst 1-in-10 world loses', pct(r.p90Drawdown, 0), '', 'of the people who would have lived'),
   );
 
@@ -300,6 +300,19 @@ function render() {
   drawFan($('#cFan'), r, cfg);
   drawRun($('#cRun'), lastRun, cfg);
   $('#survivalNote').textContent = BENCH.survivalNote;
+
+  // The legend is built from the same array the chart draws, so the two can
+  // never drift apart the way a hand-written one does the moment a benchmark
+  // is added or a colour changes.
+  const sl = $('#survivalLegend'); sl.textContent = '';
+  const mk = (color, label) => {
+    const sp = el('span');
+    const i = el('i'); i.style.background = color;
+    sp.append(i, document.createTextNode(label));
+    return sp;
+  };
+  sl.append(mk('#2e2b25', 'this model'));
+  for (const m of BENCH.marks) sl.append(mk(m.color, m.label));
   $('#fanNote').textContent =
     `Half of all worlds finish between ${r.fan.p25[cfg.horizon - 1].toFixed(2)} and ` +
     `${r.fan.p75[cfg.horizon - 1].toFixed(2)} billion people. One in twenty finishes below ` +

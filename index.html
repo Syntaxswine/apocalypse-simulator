@@ -41,13 +41,14 @@
       </select>
     </div>
     <div class="row">
-      <label for="horizon" title="How far ahead to simulate. The literature's headline figures are almost all 'by 2100'.">horizon</label>
+      <label for="horizon" title="How far ahead to simulate. This matters more than it looks: Ord's 1-in-6 runs to 2120 and the tournament figures to 2100, so comparing them without matching horizons silently adds twenty years of hazard.">horizon</label>
       <select id="horizon">
-        <option value="75">to 2100 (75y)</option>
-        <option value="100" selected>to 2125 (100y)</option>
-        <option value="200">to 2225 (200y)</option>
-        <option value="500">to 2525 (500y)</option>
-        <option value="1000">to 3025 (1000y)</option>
+        <option value="75">to 2100 &mdash; the XPT horizon</option>
+        <option value="95">to 2120 &mdash; Ord&rsquo;s horizon</option>
+        <option value="100" selected>to 2125 (a round century)</option>
+        <option value="200">to 2225</option>
+        <option value="500">to 2525</option>
+        <option value="1000">to 3025</option>
       </select>
     </div>
     <div class="btnrow">
@@ -106,12 +107,7 @@
   <section class="wide">
     <h2>Survival <span class="h2note">P(humanity still here) against year</span></h2>
     <div class="chartwrap"><canvas id="cSurvival"></canvas></div>
-    <div class="legend">
-      <span><i style="background:#2e2b25"></i>this model</span>
-      <span><i style="background:#a3402c"></i>Ord 2020, existential catastrophe by 2120</span>
-      <span><i style="background:#547a49"></i>XPT superforecasters, extinction by 2100</span>
-      <span><i style="background:#9a7326"></i>XPT domain experts, extinction by 2100</span>
-    </div>
+    <div class="legend" id="survivalLegend"></div>
     <p class="note" id="survivalNote"></p>
   </section>
 

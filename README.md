@@ -2,107 +2,145 @@
 
 **A competing-hazards Monte Carlo over the published global-catastrophic-risk record.**
 
-Every rate in this model comes from a citation you can click. Every citation was
-checked by an adversarial auditor whose job was to catch fabricated sources and
-figures that do not match what the paper actually says. Where no published figure
-exists, the model says so, in the interface, with a badge.
+→ **[syntaxswine.github.io/apocalypse-simulator](https://syntaxswine.github.io/apocalypse-simulator/)**
 
-You drag the assumptions. It tells you which ending wins.
+31 hazards. 179 citations, every one of which you can click. Drag the assumptions
+and watch which ending wins.
 
 ---
 
-## The question, taken literally
+## The finding
 
-"How is the world likely to end" has two honest answers at two different scales,
-and the page gives both.
+At the sourced present-day settings, run to 2100:
 
-**At the scale of a human life or a civilisation**, the answer is probabilistic
-and it is dominated by things we are doing to ourselves. Run the model with every
-anthropogenic hazard switched off and the background rate humanity inherited from
-the solar system is startlingly small. Everything above that floor, we brought.
+| | |
+|---|---|
+| one event kills more than 10% of humanity | **23.5%** |
+| one event kills more than half | **7.3%** |
+| extinction | **0.38%** |
+| lock-in — humanity alive, its future closed | **0.32%** |
 
-**At the scale of the planet**, the answer is not a probability at all. It is a
-schedule, and the first item on it is not the Sun going out — it is the Sun
-getting brighter, the carbon-silicate cycle running down, and photosynthesis
-becoming impossible while the Sun is still an unremarkable main-sequence star.
-That happens on the order of a billion years from now, which is roughly a fifth
-of the time life has already had.
+And underneath those, the thing worth carrying away:
 
-Most "how will the world end" material conflates these. This page keeps them
-apart, because the interventions are different: one of them has a shopping list
-and the other does not.
+> **The most likely thing to hurt you is not the most likely thing to end you.**
+>
+> Nuclear exchange causes the first major catastrophe in about 13% of runs, at
+> both scales combined, and almost never finishes it. Unaligned AI and entrenched
+> lock-in cause almost no catastrophes and account for nearly all the endings.
+>
+> Two different lists. Attention that follows the first is not protecting you
+> from the second.
 
-## What the model actually does
+That result is robust across most of the parameter space, which is what makes it
+worth stating without the model attached.
 
-One year at a time, over a century by default:
+## The other half of the question
 
-1. **Every hazard on the board gets a chance to fire**, at a rate that depends on
-   the state of the world — arsenals, capability indices, warming, and the knobs
-   you have set.
-2. **If it fires, a severity is drawn** from that hazard's tier table.
-3. **The world absorbs the damage.** Crucially, severity is *not* a fixed number.
-   Almost nothing here kills at global scale directly: asteroids, supervolcanoes
-   and nuclear exchanges all kill by the same mechanism — aerosol in the
-   stratosphere, growing seasons fail, food runs out. So the death toll is
-   computed from the event's forcing against the world's buffer *at that moment*.
-4. **Cascades fire.** An event can raise other hazards' rates for years.
-5. **The world tries to recover** — population regrows, industry rebuilds, and a
-   bootstrapping penalty makes a long outage progressively harder to climb out of.
-6. **Extinction is checked, not asserted.** A tier labelled "civilisation does not
-   return" only ends the run if the population it left behind is small enough for
-   that claim to be credible.
+"How is the world likely to end" has a second honest answer at a different scale,
+and the page gives both. At the scale of a civilisation it is a probability. At
+the scale of the planet it is a **schedule** — and the first item on that schedule
+is not the Sun going out. It is the Sun getting *brighter*: rising luminosity
+drives the carbon-silicate cycle to strip CO₂ below the minimum for land plants
+somewhere between 1.0 and 1.86 billion years from now, ending macroscopic land
+life while the Sun is still an unremarkable main-sequence star, six billion years
+before it swallows the Earth.
 
-Run it four thousand times and the distribution of endings is the answer.
+Twelve dated entries, from that to false-vacuum decay at 10¹³⁹ years.
 
-### Three structural commitments
+## How the model works
 
-These are the corrections to how models like this usually go wrong, and they are
-the reason the output is not simply a doom generator:
+One year at a time. Every hazard on the board gets a chance to fire at a rate that
+depends on the state of the world; if it fires, a severity is drawn; the world
+absorbs the damage, cascades fire, and then it tries to recover.
 
-- **The event is not the catastrophe.** Blast, tsunami and thermal pulse are
-  regional. Famine is global. The model separates prompt deaths from famine
-  deaths and only the second are buffered.
-- **Resilience is a state variable, not a slider on the output.** A 5-teragram
-  soot injection into a world holding 140 days of grain is a genuinely different
-  event from the same injection into a world holding 60. The model lets those
-  come apart, so the food-system knobs do real work.
-- **Death is not extinction.** Losing 90% of humanity and losing humanity are
-  different outcomes and the gap between them is large. Recovery gets its own
-  machinery rather than being folded into a severity number.
+Three structural commitments, each a correction to how these models usually go wrong:
 
-## What it is honest about
+- **The event is not the catastrophe.** Almost nothing here kills at global scale
+  directly. Asteroids, supervolcanoes and nuclear exchanges all kill the same way —
+  aerosol in the stratosphere, growing seasons fail, food runs out. Xia et al.
+  separate ~27M direct deaths from ~260M famine deaths at 5 Tg of soot, and ~360M
+  from over 5 billion at 150 Tg. The model separates them too, and only the famine
+  half is buffered by the food-system controls.
+- **Resilience is a state variable, not a slider on the output.** A given soot
+  injection into a world holding 220 days of grain is a different event from the
+  same injection into a world holding 45.
+- **Death is not extinction, and extinction is not the only ending.** A tier
+  labelled "civilisation does not return" only ends a run if the population it left
+  behind makes that credible. And a *third* outcome is tracked separately: lock-in,
+  where humanity persists and its future does not. The published treatments of
+  entrenched dystopia are explicit that it involves almost no deaths — a body-count
+  model cannot see it at all.
 
-The interface carries a section titled *How this model is wrong*, and it is not
-decoration. The short version:
+## What was done to keep it honest
 
-- **The rare hazards are unfalsifiable.** `tools/check.mjs` includes a rate-fidelity
-  instrument that **refuses to report** on any hazard too rare to resolve at the run
-  count available, and prints how many run-years it would actually need. For a
-  1-in-a-million-years hazard that number is astronomical. This is not a defect of
-  the harness; it is the central epistemic fact about the whole subject.
-- **The anthropic shadow cuts both ways** and the literature is currently arguing
-  about it — the 2010 paper proposing the effect and the 2024 paper arguing it is
-  much weaker are both cited on the page.
-- **The expert disagreement is larger than the model's uncertainty.** On AI risk,
-  superforecasters and domain experts in the same forecasting tournament, after
-  being made to argue with each other, differed by more than an order of magnitude
-  and did not converge. The page shows both numbers rather than picking one.
-- **Some numbers had to be constructed.** Those carry an `estimated` badge and are
-  the ones to attack first.
+**Twelve parallel researchers, then a hostile citation auditor per packet**, briefed
+to assume an error was present. **43 of 226 citations came back not-confirmed —
+19%.** Not near misses: a real arXiv ID attached to the wrong first author and
+repeated verbatim across two packets; two-thirds of a transcribed tipping-point
+table wrong by whole degrees; an author list explicitly (and falsely) certified as
+"as published". Every correction is carried into the data and shown on the hazard
+card under *What the citation auditor caught*.
+
+**Provenance is a chain, not a claim.** `docs/research-packets.json` (what was
+found) + `data/judgement.json` (every modelling call, each with a stated reason) →
+`data/hazards.json`, merged mechanically by `tools/build-hazards.mjs`. Nothing is
+retyped, and either layer can be attacked without disentangling it from the other.
+
+**The instruments found four errors that all inflated the answer**, and each is
+worth knowing about if you build something like this:
+
+1. **The famine was counted twice** — the published severity figures already *are*
+   famine numbers, and the winter mechanism was charging it again.
+2. **Chronic hazards charged deaths the demography already had.** Today's AMR
+   burden and today's climate mortality are inside the UN projection the model
+   grows against. This alone put P(losing over half of humanity) at 35%.
+3. **A rate annualised from a by-2100 figure must not then be given a trend.** The
+   forecaster was asked about 2100 and answered about 2100. Coupling it to a
+   compounding capability index on top took unaligned AI from ~6% century-cumulative
+   to 74%, purely as the coupling's shape read back. Fixed by solving each such
+   modifier's reference point so the century *integral* stays pinned to what was
+   published while the shape stays free to rise.
+4. **A cascade fired off the wrong tier** — "war → nuclear war" was triggering on
+   every conflict killing a million people, inflating the nuclear hazard by ~2×.
+
+**The rare hazards are unfalsifiable and the harness says so.** `tools/check.mjs`
+refuses to report rate fidelity on 8 of the 31 hazards and prints the run-years it
+would actually need: ~400,000 for a supereruption, 1.3 billion for a long-period
+comet, 2.5 × 10¹³ for vacuum decay. An instrument with too little resolution returns
+noise shaped like an answer.
+
+**The direction audit** (`tools/direction-audit.mjs`) is the one I would keep if I
+kept only one. The hazard rates came from the literature, but the *couplings* are
+mine — and a model built entirely from honest numbers can still be dishonest if the
+joins all lean the same way. It turns each coupling off in turn and measures the
+signed change. If every resolvable choice raised risk, that is the doom-generator
+signature and a finding about the author rather than the world. Result in
+`docs/DIRECTION-AUDIT.txt`: they point both ways.
+
+**The biggest disagreement in the field is a control, not a default.** In the 2023
+Existential Risk Persuasion Tournament, superforecasters and AI domain experts
+argued at length with incentives to persuade and came away differing by a factor of
+eight, with minimal convergence. The *whose prior* slider is that disagreement, and
+its stops were **measured** with `tools/calibrate-prior.mjs`, not asserted: 0.75×
+reproduces the superforecasters' 0.38% AI extinction by 2100, 6× the domain experts'
+3%, 7× Ord's 1-in-10 by 2120.
+
+The page carries a section called *How this model is wrong*. It is not decoration.
 
 ## Running it
 
 No build step, no dependencies, no network calls at runtime.
 
 ```bash
-node tools/serve.mjs        # then open http://localhost:8117/
+node tools/serve.mjs
 ```
 
-Verification harness — gates that fail loudly, plus instruments that only report:
+```bash
+node tools/check.mjs
+```
 
 ```bash
-node tools/check.mjs        # fast
-node tools/check.mjs --full # slow sweeps, tighter statistics
+node tools/direction-audit.mjs
 ```
 
 ## Layout
@@ -110,29 +148,20 @@ node tools/check.mjs --full # slow sweeps, tighter statistics
 | path | what it is |
 | --- | --- |
 | `index.html`, `style.css` | the page |
-| `js/model.js` | the engine: year loop, resilience, recovery, extinction |
-| `js/couplings.js` | how world state modifies rates and severities — data-driven |
+| `js/model.js` | the engine: year loop, resilience, recovery, the two ending kinds |
+| `js/couplings.js` | how world state moves rates and severities — data-driven |
 | `js/params.js` | the knobs, each with a sourced real-world default |
-| `js/charts.js` | survival curve, population fan, single-run trace |
-| `js/narrate.js` | turning one run into a readable history |
-| `data/hazards.json` | **every rate, tier and citation** |
-| `data/benchmarks.json` | published aggregate estimates to check the model against |
+| `js/worker.js` | the ensemble, off the main thread |
+| `data/hazards.json` | **generated** — every rate, tier and citation |
+| `data/judgement.json` | every modelling call that was not in the literature |
+| `data/benchmarks.json` | the published aggregates, to check the model against |
 | `data/deeptime.json` | the scheduled ends |
 | `data/honesty.json` | the model's own limitations, shown on the page |
-| `tools/check.mjs` | gates and instruments |
-| `docs/` | design notes and the sourcing record |
-
-## A note on what this is for
-
-A simulator like this is not a forecast. It is a **shorthand factory**: you run it
-to extract rules of thumb that survive outside it. The ones that fell out of this
-build are on the page under *The verdict*, and the most durable of them is this —
-
-> The catastrophes you are most likely to live through are not the ones most
-> likely to finish it. Those are two different lists, and confusing them is how
-> attention ends up in the wrong place.
+| `docs/research-packets.json` | what the researchers found and the auditors said |
+| `docs/research/*.md` | four cross-cutting briefs: aggregates, epistemics, cascades, recovery |
+| `tools/` | build, gates, instruments |
 
 ## Licence
 
-Code MIT. The sourced figures belong to the papers they came from; follow the
-links and cite those, not this.
+Code MIT. The figures belong to the papers they came from — follow the links and
+cite those, not this.

@@ -1,34 +1,234 @@
 {
- "intro": "Intro stub.",
- "survivalNote": "Survival note stub.",
+ "intro": "Four different quantities get called \"the risk\" in this literature and they are not the same: whether the event happens at all; whether it kills more than a tenth of humanity in five years (a global catastrophe); whether the population falls below five thousand (extinction); and whether humanity's long-term potential is destroyed by any route including permanent dystopia (an existential catastrophe, which is a strictly larger event set). The tournament that produced two of the rows below explicitly rejected the fourth as unresolvable. Comparing across them without saying which is which is the commonest error in the field, so this table says which each source measured, and over what horizon.",
+ "survivalNote": "The dashed lines are published estimates, not model output. They sit at different horizons and measure different events — Ord's is existential catastrophe by 2120, the tournament figures are extinction by 2100 — so read them as landmarks rather than as a target the curve should hit.",
  "marks": [
   {
-   "p": 0.166,
-   "label": "Ord 2020: 1 in 6",
+   "p": 0.167,
+   "label": "Ord 2020 — existential catastrophe by 2120 (a broader event than extinction)",
    "color": "#a3402c"
   },
   {
-   "p": 0.01,
-   "label": "XPT superforecasters 1%",
-   "color": "#547a49"
+   "p": 0.19,
+   "label": "Sandberg & Bostrom 2008 informal survey — extinction before 2100",
+   "color": "#7a6291"
   },
   {
    "p": 0.06,
-   "label": "XPT domain experts 6%",
+   "label": "XPT domain experts — extinction by 2100",
    "color": "#9a7326"
+  },
+  {
+   "p": 0.01,
+   "label": "XPT superforecasters — extinction by 2100",
+   "color": "#547a49"
   }
  ],
  "aggregate": [
   {
-   "source": "Stub source",
+   "source": "Ord, The Precipice, Table 6.1 — total",
    "year": 2020,
    "metric": "existential catastrophe by 2120",
-   "value": "1 in 6",
-   "method": "author judgement",
-   "url": "https://example.org"
+   "value": "1 in 6 (16.7%)",
+   "method": "author's considered judgement",
+   "url": "https://80000hours.org/articles/existential-risks/"
+  },
+  {
+   "source": "Ord — unaligned AI",
+   "year": 2020,
+   "metric": "existential catastrophe by 2120",
+   "value": "1 in 10",
+   "method": "author's judgement",
+   "url": "https://80000hours.org/articles/existential-risks/"
+  },
+  {
+   "source": "Ord — engineered pandemics",
+   "year": 2020,
+   "metric": "existential catastrophe by 2120",
+   "value": "1 in 30",
+   "method": "author's judgement",
+   "url": "https://80000hours.org/articles/existential-risks/"
+  },
+  {
+   "source": "Ord — unforeseen anthropogenic risks",
+   "year": 2020,
+   "metric": "existential catastrophe by 2120",
+   "value": "1 in 30",
+   "method": "author's judgement; unmodellable by construction",
+   "url": "https://80000hours.org/articles/existential-risks/"
+  },
+  {
+   "source": "Ord — other anthropogenic risks",
+   "year": 2020,
+   "metric": "existential catastrophe by 2120",
+   "value": "1 in 50",
+   "method": "author's judgement",
+   "url": "https://80000hours.org/articles/existential-risks/"
+  },
+  {
+   "source": "Ord — nuclear war",
+   "year": 2020,
+   "metric": "existential catastrophe by 2120",
+   "value": "1 in 1,000",
+   "method": "author's judgement",
+   "url": "https://80000hours.org/articles/existential-risks/"
+  },
+  {
+   "source": "Ord — climate change",
+   "year": 2020,
+   "metric": "existential catastrophe by 2120",
+   "value": "1 in 1,000",
+   "method": "author's judgement",
+   "url": "https://80000hours.org/articles/existential-risks/"
+  },
+  {
+   "source": "Ord — total NATURAL risk",
+   "year": 2020,
+   "metric": "existential catastrophe by 2120",
+   "value": "1 in 10,000",
+   "method": "author's judgement",
+   "url": "https://80000hours.org/articles/existential-risks/"
+  },
+  {
+   "source": "Ord — supervolcanic eruption",
+   "year": 2020,
+   "metric": "existential catastrophe by 2120",
+   "value": "1 in 10,000",
+   "method": "author's judgement",
+   "url": "https://80000hours.org/articles/existential-risks/"
+  },
+  {
+   "source": "Ord — asteroid or comet impact",
+   "year": 2020,
+   "metric": "existential catastrophe by 2120",
+   "value": "1 in 1,000,000",
+   "method": "author's judgement",
+   "url": "https://80000hours.org/articles/existential-risks/"
+  },
+  {
+   "source": "Ord — stellar explosion",
+   "year": 2020,
+   "metric": "existential catastrophe by 2120",
+   "value": "1 in 1,000,000,000",
+   "method": "author's judgement",
+   "url": "https://80000hours.org/articles/existential-risks/"
+  },
+  {
+   "source": "XPT superforecasters",
+   "year": 2023,
+   "metric": "global catastrophe (>10% dead in 5 yrs) by 2100",
+   "value": "9.05%",
+   "method": "forecasting tournament, calibrated generalists",
+   "url": "https://forecastingresearch.org/xpt"
+  },
+  {
+   "source": "XPT domain experts",
+   "year": 2023,
+   "metric": "global catastrophe (>10% dead in 5 yrs) by 2100",
+   "value": "20%",
+   "method": "forecasting tournament, subject experts",
+   "url": "https://forecastingresearch.org/xpt"
+  },
+  {
+   "source": "XPT superforecasters",
+   "year": 2023,
+   "metric": "extinction (population under 5,000) by 2100",
+   "value": "1%",
+   "method": "forecasting tournament",
+   "url": "https://forecastingresearch.org/xpt"
+  },
+  {
+   "source": "XPT domain experts",
+   "year": 2023,
+   "metric": "extinction (population under 5,000) by 2100",
+   "value": "6%",
+   "method": "forecasting tournament",
+   "url": "https://forecastingresearch.org/xpt"
+  },
+  {
+   "source": "XPT superforecasters — AI",
+   "year": 2023,
+   "metric": "AI extinction by 2100",
+   "value": "0.38%",
+   "method": "forecasting tournament",
+   "url": "https://forecastingresearch.org/xpt"
+  },
+  {
+   "source": "XPT domain experts — AI",
+   "year": 2023,
+   "metric": "AI extinction by 2100",
+   "value": "3%",
+   "method": "forecasting tournament",
+   "url": "https://forecastingresearch.org/xpt"
+  },
+  {
+   "source": "Sandberg & Bostrom, FHI TR 2008-1 — overall",
+   "year": 2008,
+   "metric": "extinction before 2100",
+   "value": "19% (median)",
+   "method": "INFORMAL conference-room survey; the authors' own caveat is quoted below — note the canonical fhi.ox.ac.uk URL in every citation of this report no longer resolves; this is an archive copy",
+   "url": "https://web.archive.org/web/2023/https://www.fhi.ox.ac.uk/reports/2008-1.pdf"
+  },
+  {
+   "source": "Sandberg & Bostrom — superintelligent AI",
+   "year": 2008,
+   "metric": "extinction before 2100",
+   "value": "5%",
+   "method": "informal survey median — note the canonical fhi.ox.ac.uk URL in every citation of this report no longer resolves; this is an archive copy",
+   "url": "https://web.archive.org/web/2023/https://www.fhi.ox.ac.uk/reports/2008-1.pdf"
+  },
+  {
+   "source": "Sandberg & Bostrom — nanotech weapons",
+   "year": 2008,
+   "metric": "extinction before 2100",
+   "value": "5%",
+   "method": "informal survey median — note the canonical fhi.ox.ac.uk URL in every citation of this report no longer resolves; this is an archive copy",
+   "url": "https://web.archive.org/web/2023/https://www.fhi.ox.ac.uk/reports/2008-1.pdf"
+  },
+  {
+   "source": "Sandberg & Bostrom — all wars",
+   "year": 2008,
+   "metric": "extinction before 2100",
+   "value": "4%",
+   "method": "informal survey median — note the canonical fhi.ox.ac.uk URL in every citation of this report no longer resolves; this is an archive copy",
+   "url": "https://web.archive.org/web/2023/https://www.fhi.ox.ac.uk/reports/2008-1.pdf"
+  },
+  {
+   "source": "Sandberg & Bostrom — engineered pandemic",
+   "year": 2008,
+   "metric": "extinction before 2100",
+   "value": "2%",
+   "method": "informal survey median — note the canonical fhi.ox.ac.uk URL in every citation of this report no longer resolves; this is an archive copy",
+   "url": "https://web.archive.org/web/2023/https://www.fhi.ox.ac.uk/reports/2008-1.pdf"
+  },
+  {
+   "source": "Sandberg & Bostrom — all nuclear wars",
+   "year": 2008,
+   "metric": "extinction before 2100",
+   "value": "1%",
+   "method": "informal survey median — note the canonical fhi.ox.ac.uk URL in every citation of this report no longer resolves; this is an archive copy",
+   "url": "https://web.archive.org/web/2023/https://www.fhi.ox.ac.uk/reports/2008-1.pdf"
+  },
+  {
+   "source": "Sandberg & Bostrom — natural pandemic",
+   "year": 2008,
+   "metric": "extinction before 2100",
+   "value": "0.05%",
+   "method": "informal survey median — note the canonical fhi.ox.ac.uk URL in every citation of this report no longer resolves; this is an archive copy",
+   "url": "https://web.archive.org/web/2023/https://www.fhi.ox.ac.uk/reports/2008-1.pdf"
+  },
+  {
+   "source": "Rees, Our Final Century",
+   "year": 2003,
+   "metric": "a severe setback to civilisation by 2100",
+   "value": "50%",
+   "method": "author's judgement; note this is a much weaker event than extinction",
+   "url": "https://en.wikipedia.org/wiki/Our_Final_Hour"
   }
  ],
  "commentary": [
-  "Commentary stub."
+  "Ord's rows do not sum to his total. Adding the anthropogenic ones naively gives about 1 in 5.3 against a stated 1 in 6, because — as he says — the figures are rounded to the nearest factor of ten. There is a warning in that for this page specifically: a model that treats hazards as independent and multiplies survival probabilities across them will overshoot. This one does exactly that, and the overshoot is real.",
+  "Ord's horizon is 2121, not 2100. Comparing his 1 in 6 against a by-2100 figure silently adds twenty years of hazard, which is why the horizon control above offers 2120 as well.",
+  "The 2008 survey's 19% is the highest number on this page and the weakest. Its own opening sentence calls it an informal survey circulated among participants at a conference on catastrophic risk — a room selected for believing the subject matters — and the authors add that the results should be taken with a grain of salt. It is on the table because leaving it off would be curating the evidence.",
+  "The two tournament rows are the most interesting disagreement here. Superforecasters and domain experts were made to argue with each other at length, with incentives to persuade, and came away differing by roughly a factor of six on total extinction and a factor of eight on AI specifically. Persuasion did not converge them. That is not noise to be averaged away — it is the state of knowledge, and the 'whose prior' control lets you run either one."
  ]
 }
