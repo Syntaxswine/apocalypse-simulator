@@ -269,9 +269,9 @@ function render() {
     cell('one event kills >50%', pct(r.pCollapse, 2), '', `by ${endYear}`, r.pCollapse > 0.05),
     cell('extinction', pct(r.pExtinct, 2), '', seTxt, r.pExtinct > 0.01),
     cell('lock-in', pct(r.pLockIn, 2), '', 'alive, with no future', r.pLockIn > 0.01),
-    cell('median population in ' + endYear, r.popMedian.toFixed(2), 'bn',
-      `against ${r.baselineEnd.toFixed(2)} bn if nothing happened`),
-    cell('worst 1-in-10 world loses', pct(r.p90Drawdown, 0), '', 'of the people who would have lived'),
+    cell('median population', r.popMedian.toFixed(2), 'bn',
+      `in ${endYear}, against ${r.baselineEnd.toFixed(2)} bn`),
+    cell('worst 1-in-10 world', '−' + pct(r.p90Drawdown, 0), '', 'of the people who would have lived'),
   );
 
   const prose = $('#verdictProse'); prose.textContent = '';
@@ -448,8 +448,12 @@ function renderCards() {
       const dc = el('td', 'note'); dc.colSpan = 6;
       dc.textContent = (t.desc || '');
       if (t.split) {
-        dc.append(el('span', 'hint', ` — of the ${pct(t.deaths, t.deaths < 0.01 ? 3 : 0)}, ` +
-          `${pct(t.deaths > 0 ? t.promptDeaths / t.deaths : 0, 0)} is prompt and the rest famine. ${t.split}`));
+        const share = t.deaths > 0 ? t.promptDeaths / t.deaths : 0;
+        // "100% is prompt and the rest famine" is nonsense, and so is its mirror.
+        const mix = share >= 0.995 ? 'all of it prompt, none of it buffered'
+          : share <= 0.005 ? 'effectively all of it famine, so the food-system controls act on all of it'
+          : `${pct(share, 0)} of it prompt and ${pct(1 - share, 0)} famine`;
+        dc.append(el('span', 'hint', ` — ${mix}. ${t.split}`));
       }
       dr.append(dc); tb2.append(dr);
     }

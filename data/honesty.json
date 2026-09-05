@@ -1,78 +1,78 @@
 {
-  "footer": "Every hazard rate on this page came from a published source, and each was checked by an auditor briefed to assume it was wrong. 43 of 226 citations came back not-confirmed — 19% — and the corrections are on the cards. That is the error rate in a careful first pass by people trying hard. Assume this page has some left.",
-
-  "items": [
-    {
-      "title": "The rare hazards on this page are unfalsifiable, and that is the central fact about the whole subject",
-      "warn": true,
-      "body": [
-        "The verification harness includes an instrument that checks the engine fires each hazard at the rate its data asks for. On eight of the thirty-one it refuses to report at all, and prints instead the number of simulated years it would need. For a supervolcano it is about 400,000. For a long-period comet, 1.3 billion. For false-vacuum decay, 2.5 × 10¹³. These are not numbers any run count can reach.",
-        "So for the tail — the part everyone actually wants to know about — the model is doing arithmetic on its inputs, not discovering anything. The Monte Carlo is genuinely earning its keep on the interactions, the cascades and the recovery machinery, all of which are hard to do in your head. It is not earning its keep on the rate of things that happen once in a hundred thousand years, because nothing can.",
-        "An instrument with too little resolution returns noise shaped like an answer. Better that it says so."
-      ]
-    },
-    {
-      "title": "Four different things get called “the risk”, and mixing them is the field's commonest error",
-      "body": [
-        "Whether the event happens. Whether it kills more than a tenth of humanity in five years — a global catastrophe. Whether the population falls below five thousand — extinction. Whether humanity's long-term potential is destroyed by any route at all, including a permanent dystopia with nobody dead — an existential catastrophe, which is a strictly larger event set than the third.",
-        "Ord's famous 1-in-6 is the fourth, over 2021–2120. The Existential Risk Persuasion Tournament's figures are the second and third, by 2100. They are not the same claim and they are not over the same century. This model reports the second, third and fourth separately and never adds them, which is why the verdict panel has four cells instead of one.",
-        "The gap between the second and third is itself a finding: the tournament's superforecasters put catastrophe at 9% and extinction at 1%; its domain experts at 20% and 6%. They disagree about the magnitude AND about the conditional lethality, and a model with a single risk number per hazard cannot represent that."
-      ]
-    },
-    {
-      "title": "The experts disagree with each other by more than this model disagrees with any of them",
-      "body": [
-        "In the 2023 tournament, superforecasters and AI domain experts argued at length with incentives to persuade, and came away differing by roughly a factor of eight on AI extinction. The tournament's own summary is “large-scale disagreement and minimal convergence of beliefs”. Persuasion did not work.",
-        "That is why “whose prior” is a control on this page rather than a number buried in the data. Its stops were measured, not asserted: 0.75× reproduces the superforecasters, 6× the domain experts, 7× Ord.",
-        "Two further things the follow-up study found, both of which should temper any confidence in any of these numbers, including this page's. There was no statistically significant correlation between a forecaster's near-term accuracy and their long-run existential-risk forecasts — so nobody has demonstrated skill at this. And the median individual expert or superforecaster performed statistically indistinguishably from simple extrapolation algorithms; only aggregation bought about one standard deviation. Also worth knowing when reading the word “expert”: 42% of the tournament's experts reported having attended an effective-altruism meetup, and the pool was 32 AI, 12 biorisk, 12 nuclear, 9 climate and 15 generalist."
-      ]
-    },
-    {
-      "title": "Treating hazards as independent overshoots, and Ord says so about his own table",
-      "body": [
-        "This model rolls each hazard separately each year and combines them as one minus the product of the survivals. That is a defensible floor for total risk, but it is only a floor, and Ord's own note about Table 6.1 is a direct warning: his rows sum to about 1 in 5.3 against a stated total of 1 in 6, and he cautions against reconstructing the total from the decomposition.",
-        "The cascade layer is the partial answer — an event here can raise another hazard's rate for years, and the couplings are listed on each card with a reason. But the harder case is the one the compound-risk literature keeps naming and nobody has quantified: hazard A degrades a critical system, and hazard B, survivable in an intact world, is not survivable in the degraded one. Some of that is captured by the resilience term and the concurrent-stress penalty. Not all of it. What is missing points one way, toward more risk."
-      ]
-    },
-    {
-      "title": "The anthropic shadow: a famous argument that, on its own authors' rules, touches one hazard here",
-      "body": [
-        "We could not have observed a catastrophe that killed us, so rates read off the terrestrial record may be systematically too low. Ćirković, Sandberg & Bostrom (2010) formalised this and work an example giving a factor of 5.5. Thomas (2024), in “Dispelling the Anthropic Shadow”, argues the effect is not there at all.",
-        "Working out where it applies is more interesting than the correction. The original paper restricts it to hazards that could have ended our lineage, are uncertain, AND have rates estimated largely from the terrestrial record — and it exempts hazards with independent external evidence by name. That rules out everything anthropogenic (there is no censored record for AI or engineered pathogens); the impact rates, which come from telescopic size-frequency distributions rather than from our survival; and supernova, gamma-ray-burst and stellar-encounter rates, which are inferred from other galaxies and from the local stellar mass function. Their own formula also sends the correction to 1 for anything we could have survived.",
-        "One hazard is left standing: the supereruption return period, read off the geological record. One, out of thirty-one. The slider defaults to 1 — the sceptical position — because a correction that only ever raises risk is a doom generator rather than a debiasing step."
-      ]
-    },
-    {
-      "title": "Every discretionary choice in this model was audited for which way it leans",
-      "body": [
-        "The hazard rates came from the literature. The couplings between them — every rate modifier, every severity modifier, every cascade — are this project's own calls, and a model built entirely from honest numbers can still be dishonest if the joins all lean the same way. Nobody notices, because each individual choice looks defensible.",
-        "So tools/direction-audit.mjs turns each coupling off one at a time and measures the signed change in the headline. If every resolvable choice raised risk, that would be the doom-generator signature and it would be a finding about the author rather than about the world. The result is printed in the repository; the choices point both ways.",
-        "That does not make the couplings right. It only means they are not all leaning."
-      ]
-    },
-    {
-      "title": "Where the severity distributions are weakest",
-      "body": [
-        "War and pandemic severity are extremely fat-tailed, and where the tail index is low enough the mean does not exist at all — Cirillo & Taleb's own pandemic case has a mean of 4.9 million, a median of 76 thousand and a 99th percentile of 137.5 million, three numbers telling three stories, of which only two are meaningful. This page never reports a mean severity. Medians and percentile bands only.",
-        "The tail SHAPE is disputed in a way this model does not represent. Corral (2020) showed the same pandemic data are indistinguishable from a lognormal rather than a power law, which changes the extinction tail substantially. This model uses tabulated tiers with a lognormal spread around each, which is a third thing again, and it does not run both and report the spread. It should.",
-        "And Clauset's finding on the long peace is a standing warning against reading trends off this record at all: the post-1945 quiet period would have to last another 100 to 140 years before it became statistically distinguishable from a stationary process. This model treats the war base rate as stationary for exactly that reason."
-      ]
-    },
-    {
-      "title": "What is deliberately not modelled",
-      "body": [
-        "No geography. No regions, no trade-network topology, no where-you-live. The severity figures in the literature are global and disaggregating them honestly would need a food-trade network model, where the input data is itself contested.",
-        "No politics as a dynamic. Crisis tempo is a knob, not something the model produces. Making it endogenous would be inventing rather than reporting.",
-        "No learning. A world that rebuilds after a collapse goes back on the board with the same rates. Whether a civilisation that has been through one is more careful or less is genuinely open, and the model declines to answer.",
-        "No hazard can be retired to zero. Even a completed asteroid catalogue with a standing deflection capability — which plausibly could retire one — only approaches it here. That is a conservatism, and it points toward more risk."
-      ]
-    },
-    {
-      "title": "The one number on this page with no empirical support at all",
-      "body": [
-        "The “safety effort” slider divides the AI hazard's severity by alignment investment raised to an exponent. No published study estimates an elasticity of catastrophe probability with respect to alignment spending. The exponent is an author estimate with nothing underneath it.",
-        "It is here so the control is not a lie about what the model does, not because the number is known. If you are going to attack one figure on this page, attack that one first. The runner-up is the population floor for recovery, which is a wild-vertebrate median applied to a species with agriculture and books."
-      ]
-    }
-  ]
+ "footer": "Every hazard rate on this page came from a published source, and each was checked by an auditor briefed to assume it was wrong. 43 of 226 citations came back not-confirmed — 19% — and the corrections are on the cards. That is the error rate in a careful first pass by people trying hard. Assume this page has some left.",
+ "items": [
+  {
+   "title": "The rare hazards on this page are unfalsifiable, and that is the central fact about the whole subject",
+   "warn": true,
+   "body": [
+    "The verification harness includes an instrument that checks the engine fires each hazard at the rate its data asks for. On eight of the thirty-one it refuses to report at all, and prints instead the number of simulated years it would need. For a supervolcano it is about 400,000. For a long-period comet, 1.3 billion. For false-vacuum decay, 2.5 × 10¹³. These are not numbers any run count can reach.",
+    "So for the tail — the part everyone actually wants to know about — the model is doing arithmetic on its inputs, not discovering anything. The Monte Carlo is genuinely earning its keep on the interactions, the cascades and the recovery machinery, all of which are hard to do in your head. It is not earning its keep on the rate of things that happen once in a hundred thousand years, because nothing can.",
+    "An instrument with too little resolution returns noise shaped like an answer. Better that it says so."
+   ]
+  },
+  {
+   "title": "Four different things get called “the risk”, and mixing them is the field's commonest error",
+   "body": [
+    "Whether the event happens. Whether it kills more than a tenth of humanity in five years — a global catastrophe. Whether the population falls below five thousand — extinction. Whether humanity's long-term potential is destroyed by any route at all, including a permanent dystopia with nobody dead — an existential catastrophe, which is a strictly larger event set than the third.",
+    "Ord's famous 1-in-6 is the fourth, over 2021–2120. The Existential Risk Persuasion Tournament's figures are the second and third, by 2100. They are not the same claim and they are not over the same century. This model reports the second, third and fourth separately and never adds them, which is why the verdict panel has four cells instead of one.",
+    "The gap between the second and third is itself a finding: the tournament's superforecasters put catastrophe at 9% and extinction at 1%; its domain experts at 20% and 6%. They disagree about the magnitude AND about the conditional lethality, and a model with a single risk number per hazard cannot represent that."
+   ]
+  },
+  {
+   "title": "The experts disagree with each other by more than this model disagrees with any of them",
+   "body": [
+    "In the 2023 tournament, superforecasters and AI domain experts argued at length with incentives to persuade, and came away differing by roughly a factor of eight on AI extinction. The tournament's own summary is “large-scale disagreement and minimal convergence of beliefs”. Persuasion did not work.",
+    "That is why “whose prior” is a control on this page rather than a number buried in the data. Its stops were measured, not asserted: 0.75× reproduces the superforecasters, 6× the domain experts, 7× Ord.",
+    "Two further things the follow-up study found, both of which should temper any confidence in any of these numbers, including this page's. There was no statistically significant correlation between a forecaster's near-term accuracy and their long-run existential-risk forecasts — so nobody has demonstrated skill at this. And the median individual expert or superforecaster performed statistically indistinguishably from simple extrapolation algorithms; only aggregation bought about one standard deviation. Also worth knowing when reading the word “expert”: 42% of the tournament's experts reported having attended an effective-altruism meetup, and the pool was 32 AI, 12 biorisk, 12 nuclear, 9 climate and 15 generalist."
+   ]
+  },
+  {
+   "title": "Treating hazards as independent overshoots, and Ord says so about his own table",
+   "body": [
+    "This model rolls each hazard separately each year and combines them as one minus the product of the survivals. That is a defensible floor for total risk, but it is only a floor, and Ord's own note about Table 6.1 is a direct warning: his rows sum to about 1 in 5.3 against a stated total of 1 in 6, and he cautions against reconstructing the total from the decomposition.",
+    "The cascade layer is the partial answer — an event here can raise another hazard's rate for years, and the couplings are listed on each card with a reason. But the harder case is the one the compound-risk literature keeps naming and nobody has quantified: hazard A degrades a critical system, and hazard B, survivable in an intact world, is not survivable in the degraded one. Some of that is captured by the resilience term and the concurrent-stress penalty. Not all of it. What is missing points one way, toward more risk."
+   ]
+  },
+  {
+   "title": "The anthropic shadow: a famous argument that, on its own authors' rules, touches one hazard here",
+   "body": [
+    "We could not have observed a catastrophe that killed us, so rates read off the terrestrial record may be systematically too low. Ćirković, Sandberg & Bostrom (2010) formalised this and work an example giving a factor of 5.5. Thomas (2024), in “Dispelling the Anthropic Shadow”, argues the effect is not there at all.",
+    "Working out where it applies is more interesting than the correction. The original paper restricts it to hazards that could have ended our lineage, are uncertain, AND have rates estimated largely from the terrestrial record — and it exempts hazards with independent external evidence by name. That rules out everything anthropogenic (there is no censored record for AI or engineered pathogens); the impact rates, which come from telescopic size-frequency distributions rather than from our survival; and supernova, gamma-ray-burst and stellar-encounter rates, which are inferred from other galaxies and from the local stellar mass function. Their own formula also sends the correction to 1 for anything we could have survived.",
+    "One hazard is left standing: the supereruption return period, read off the geological record. One, out of thirty-one. The slider defaults to 1 — the sceptical position — because a correction that only ever raises risk is a doom generator rather than a debiasing step."
+   ]
+  },
+  {
+   "title": "Every discretionary choice in this model was audited for which way it leans",
+   "body": [
+    "The hazard rates came from the literature. The couplings between them — every rate modifier, every severity modifier, every cascade — are this project's own calls, and a model built entirely from honest numbers can still be dishonest if the joins all lean the same way. Nobody notices, because each individual choice looks defensible on its own.",
+    "So tools/direction-audit.mjs turns each of the 92 couplings off in turn and measures the signed change in the headline. If every resolvable choice raised risk, that would be the doom-generator signature and a finding about the author rather than about the world.",
+    "Two things came back, and the second is the interesting one. First, the audit REFUSES to give a verdict about the 92 individual choices, because only 2 of them resolve above the Monte Carlo noise floor — separating a typical coupling from noise would need of order 1.5 million runs per trial, ninety-two times over. An instrument that can see two of ninety-two has no business pronouncing on ninety-two.",
+    "Second, the aggregate DOES resolve, and it goes the other way from the worry: turning the entire coupling layer off RAISES the probability of an ending from 0.77% to 1.55%. The layer as a body roughly halves the headline. That is dominated by the rate calibration — pinning the century integral of the rising capability hazards holds their early decades well below where a naive coupling would put them. So the couplings here are not innocent of bias. They are biased DOWN, and you should weigh the page's numbers knowing that."
+   ]
+  },
+  {
+   "title": "Where the severity distributions are weakest",
+   "body": [
+    "War and pandemic severity are extremely fat-tailed, and where the tail index is low enough the mean does not exist at all — Cirillo & Taleb's own pandemic case has a mean of 4.9 million, a median of 76 thousand and a 99th percentile of 137.5 million, three numbers telling three stories, of which only two are meaningful. This page never reports a mean severity. Medians and percentile bands only.",
+    "The tail SHAPE is disputed in a way this model does not represent. Corral (2020) showed the same pandemic data are indistinguishable from a lognormal rather than a power law, which changes the extinction tail substantially. This model uses tabulated tiers with a lognormal spread around each, which is a third thing again, and it does not run both and report the spread. It should.",
+    "And Clauset's finding on the long peace is a standing warning against reading trends off this record at all: the post-1945 quiet period would have to last another 100 to 140 years before it became statistically distinguishable from a stationary process. This model treats the war base rate as stationary for exactly that reason."
+   ]
+  },
+  {
+   "title": "What is deliberately not modelled",
+   "body": [
+    "No geography. No regions, no trade-network topology, no where-you-live. The severity figures in the literature are global and disaggregating them honestly would need a food-trade network model, where the input data is itself contested.",
+    "No politics as a dynamic. Crisis tempo is a knob, not something the model produces. Making it endogenous would be inventing rather than reporting.",
+    "No learning. A world that rebuilds after a collapse goes back on the board with the same rates. Whether a civilisation that has been through one is more careful or less is genuinely open, and the model declines to answer.",
+    "No hazard can be retired to zero. Even a completed asteroid catalogue with a standing deflection capability — which plausibly could retire one — only approaches it here. That is a conservatism, and it points toward more risk."
+   ]
+  },
+  {
+   "title": "The one number on this page with no empirical support at all",
+   "body": [
+    "The “safety effort” slider divides the AI hazard's severity by alignment investment raised to an exponent. No published study estimates an elasticity of catastrophe probability with respect to alignment spending. The exponent is an author estimate with nothing underneath it.",
+    "It is here so the control is not a lie about what the model does, not because the number is known. If you are going to attack one figure on this page, attack that one first. The runner-up is the population floor for recovery, which is a wild-vertebrate median applied to a species with agriculture and books."
+   ]
+  }
+ ]
 }

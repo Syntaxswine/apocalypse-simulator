@@ -525,9 +525,13 @@ export function makeEnsemble(cfg, n) {
       popAt.sort((a, b) => a - b);
       const q = (arr, p) => arr[Math.min(arr.length - 1, Math.max(0, Math.floor(p * arr.length)))];
 
+      // The fan costs H sorts of `used` elements, which dominates the whole
+      // ensemble once `used` is large. The page always wants it; the sweeps and
+      // the direction audit never look at it, and they run the ensemble ninety
+      // times over. Skippable rather than always paid for.
       const fan = { p05: [], p25: [], p50: [], p75: [], p95: [] };
       const col = new Float64Array(used);
-      for (let y = 0; y < H; y++) {
+      for (let y = 0; cfg.fan !== false && y < H; y++) {
         for (let k = 0; k < used; k++) col[k] = popGrid[k * H + y];
         const s = Array.prototype.slice.call(col).sort((a, b) => a - b);
         fan.p05.push(q(s, 0.05)); fan.p25.push(q(s, 0.25)); fan.p50.push(q(s, 0.50));

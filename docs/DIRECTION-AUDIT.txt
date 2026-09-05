@@ -1,2 +1,119 @@
-baseline, 40,000 runs to 2100: P(any ending) 0.752%, P(one event >10%) 23.45%
+baseline, 15,000 runs to 2100: P(any ending) 0.767%, P(one event >10%) 23.60%
 
+  effect in percentage points. Noise floor: +/-0.201 on P(any ending), +/-0.981 on P(one event >10%).
+  NOTE: at 15,000 runs the ending column resolves only couplings worth more
+  than 0.201 points, and most are worth less. Read the >10% column, or raise the count.
+
+   dP(end)   dP(>10%)  kind               choice
+  +  0.100  +   0.220  cascade            mainline-warming-damage -> great-power-and-interstate-war (x1.15)   (noise)
+  +  0.087  +   0.000  cascade            great-power-and-interstate-war -> unrecoverable-dystopia (x2)   (noise)
+  +  0.033  +   0.053  cascade            global-food-system-shock-multi-breadbasket-failure -> great-power-and-interstate-war (x2)   (noise)
+  +  0.020    -0.033  cascade            great-power-and-interstate-war -> chemical-radiological-weapons (x4)   (noise)
+  +  0.020  +   0.173  cascade            chemical-radiological-weapons -> great-power-and-interstate-war (x1.3)   (noise)
+  +  0.013    -0.100  rate modifier      laboratory-accident-enhanced-pathogen <- bioCap   (noise)
+  +  0.013  +   0.000  cascade            full-scale-strategic-exchange -> interdependent-infrastructure-cascade (x4)   (noise)
+  +  0.013  +   0.000  cascade            full-scale-strategic-exchange -> synthetic-nitrogen-dependence (x6)   (noise)
+  +  0.013  +   0.000  cascade            full-scale-strategic-exchange -> great-power-and-interstate-war (x2)   (noise)
+  +  0.013  +   0.253  cascade            great-power-and-interstate-war -> regional-nuclear-exchange (x4)   (noise)
+  +  0.013  +   0.007  cascade            synthetic-nitrogen-dependence -> global-food-system-shock-multi-breadbasket-failure (x4)   (noise)
+  +  0.013  +   0.093  cascade            carrington-class-geomagnetic-superstorm -> interdependent-infrastructure-cascade (x6)   (noise)
+  +  0.007    -1.260  rate modifier      tipping-cascade-high-sensitivity-tail <- warming
+  +  0.007    -0.180  rate modifier      ai-enabled-misuse <- aiCap   (noise)
+  +  0.007  +   0.007  cascade            global-food-system-shock-multi-breadbasket-failure -> biosphere-degradation-pollinator-and-soil-loss (x1.3)   (noise)
+  +  0.007  +   0.000  cascade            vei7-large-explosive-eruption -> great-power-and-interstate-war (x1.4)   (noise)
+  +  0.007  +   0.020  rate modifier      synthetic-nitrogen-dependence <- industry   (noise)
+  +  0.007  +   0.040  cascade            interdependent-infrastructure-cascade -> synthetic-nitrogen-dependence (x5)   (noise)
+  +  0.007  +   0.173  cascade            antimicrobial-resistance -> natural-pandemic (x1.3)   (noise)
+  +  0.007  +   0.047  cascade            carrington-class-geomagnetic-superstorm -> global-food-system-shock-multi-breadbasket-failure (x2)   (noise)
+  +  0.000  +   0.000  rate modifier      large-asteroid-impact <- neoSurvey x deflection   (noise)
+  +  0.000  +   0.000  cascade            large-asteroid-impact -> global-food-system-shock-multi-breadbasket-failure (x3)   (noise)
+  +  0.000  +   0.000  cascade            large-asteroid-impact -> interdependent-infrastructure-cascade (x2)   (noise)
+  +  0.000  +   0.000  cascade            large-asteroid-impact -> full-scale-strategic-exchange (x2.5)   (noise)
+  +  0.000  +   0.000  rate modifier      long-period-comet-impact <- deflection   (noise)
+  +  0.000  +   0.000  cascade            long-period-comet-impact -> global-food-system-shock-multi-breadbasket-failure (x3.5)   (noise)
+  +  0.000  +   0.000  cascade            long-period-comet-impact -> large-asteroid-impact (x1)   (noise)
+  +  0.000  +   0.000  severity modifier  mainline-warming-damage <- warming   (noise)
+  +  0.000  +   0.787  cascade            mainline-warming-damage -> tipping-cascade-high-sensitivity-tail (x1.4)   (noise)
+  +  0.000  +   0.000  rate modifier      tipping-cascade-high-sensitivity-tail <- sensitivityScale   (noise)
+  +  0.000  +   0.000  cascade            tipping-cascade-high-sensitivity-tail -> global-food-system-shock-multi-breadbasket-failure (x3)   (noise)
+  +  0.000  +   0.013  cascade            tipping-cascade-high-sensitivity-tail -> great-power-and-interstate-war (x1.6)   (noise)
+  +  0.000  +   0.020  cascade            tipping-cascade-high-sensitivity-tail -> engineered-pandemic-deliberate-release (x1.2)   (noise)
+  +  0.000  +   0.000  rate modifier      engineered-pandemic-deliberate-release <- synthScreening   (noise)
+  +  0.000    -0.247  rate modifier      engineered-pandemic-deliberate-release <- bioCap   (noise)
+  +  0.000  +   0.007  cascade            engineered-pandemic-deliberate-release -> interdependent-infrastructure-cascade (x1.8)   (noise)
+  +  0.000  +   0.000  cascade            engineered-pandemic-deliberate-release -> global-food-system-shock-multi-breadbasket-failure (x1.6)   (noise)
+  +  0.000  +   0.140  cascade            laboratory-accident-enhanced-pathogen -> engineered-pandemic-deliberate-release (x1.4)   (noise)
+  +  0.000  +   0.000  rate modifier      state-bioweapons-programme-use <- crisisRate   (noise)
+  +  0.000  +   0.120  rate modifier      state-bioweapons-programme-use <- bioCap   (noise)
+  +  0.000  +   0.007  cascade            state-bioweapons-programme-use -> engineered-pandemic-deliberate-release (x2)   (noise)
+  +  0.000  +   0.000  rate modifier      regional-nuclear-exchange <- crisisRate   (noise)
+  +  0.000  +   0.000  rate modifier      regional-nuclear-exchange <- warheads   (noise)
+  +  0.000  +   0.000  severity modifier  regional-nuclear-exchange <- cityTargeting   (noise)
+  +  0.000  +   0.033  cascade            regional-nuclear-exchange -> full-scale-strategic-exchange (x5)   (noise)
+  +  0.000  +   0.000  cascade            regional-nuclear-exchange -> interdependent-infrastructure-cascade (x2)   (noise)
+  +  0.000  +   0.000  rate modifier      full-scale-strategic-exchange <- crisisRate   (noise)
+  +  0.000  +   0.000  rate modifier      full-scale-strategic-exchange <- warheads   (noise)
+  +  0.000  +   0.000  severity modifier  full-scale-strategic-exchange <- cityTargeting   (noise)
+  +  0.000  +   0.000  severity modifier  full-scale-strategic-exchange <- warheads   (noise)
+  +  0.000  +   0.007  cascade            full-scale-strategic-exchange -> global-food-system-shock-multi-breadbasket-failure (x6)   (noise)
+  +  0.000  +   0.007  cascade            full-scale-strategic-exchange -> natural-pandemic (x2)   (noise)
+  +  0.000  +   0.000  rate modifier      great-power-and-interstate-war <- crisisRate   (noise)
+  +  0.000  +   0.007  cascade            great-power-and-interstate-war -> state-bioweapons-programme-use (x3)   (noise)
+  +  0.000  +   0.093  cascade            great-power-and-interstate-war -> engineered-pandemic-deliberate-release (x1.5)   (noise)
+  +  0.000  +   0.000  rate modifier      chemical-radiological-weapons <- crisisRate   (noise)
+  +  0.000  +   0.000  rate modifier      unaligned-ai <- aiPrior   (noise)
+  +  0.000  +   0.000  severity modifier  unaligned-ai <- alignmentEffort   (noise)
+  +  0.000  +   0.000  cascade            unaligned-ai -> unrecoverable-dystopia (x3)   (noise)
+  +  0.000  +   0.007  cascade            ai-enabled-misuse -> engineered-pandemic-deliberate-release (x2.5)   (noise)
+  +  0.000  +   0.000  cascade            ai-enabled-misuse -> unaligned-ai (x1.3)   (noise)
+  +  0.000  +   0.000  cascade            ai-enabled-misuse -> full-scale-strategic-exchange (x1.5)   (noise)
+  +  0.000    -0.187  rate modifier      biosphere-degradation-pollinator-and-soil-loss <- warming   (noise)
+  +  0.000  +   0.000  cascade            biosphere-degradation-pollinator-and-soil-loss -> global-food-system-shock-multi-breadbasket-failure (x1.6)   (noise)
+  +  0.000  +   0.000  cascade            global-food-system-shock-multi-breadbasket-failure -> natural-pandemic (x1.3)   (noise)
+  +  0.000  +   0.000  rate modifier      vei8-supereruption <- shadowFactor   (noise)
+  +  0.000  +   0.000  cascade            vei8-supereruption -> great-power-and-interstate-war (x2)   (noise)
+  +  0.000  +   0.000  cascade            vei8-supereruption -> interdependent-infrastructure-cascade (x2)   (noise)
+  +  0.000  +   0.000  rate modifier      interdependent-infrastructure-cascade <- gridHardening   (noise)
+  +  0.000  +   0.000  rate modifier      natural-pandemic <- spillover   (noise)
+  +  0.000  +   0.000  cascade            natural-pandemic -> antimicrobial-resistance (x1.5)   (noise)
+  +  0.000  +   0.000  cascade            natural-pandemic -> interdependent-infrastructure-cascade (x1.5)   (noise)
+  +  0.000  +   0.007  cascade            natural-pandemic -> great-power-and-interstate-war (x1.2)   (noise)
+  +  0.000  +   0.000  severity modifier  carrington-class-geomagnetic-superstorm <- gridHardening   (noise)
+  +  0.000  +   0.013  cascade            carrington-class-geomagnetic-superstorm -> synthetic-nitrogen-dependence (x3)   (noise)
+  +  0.000  +   0.000  severity modifier  extreme-solar-particle-event <- gridHardening   (noise)
+  +  0.000  +   0.000  cascade            extreme-solar-particle-event -> carrington-class-geomagnetic-superstorm (x2)   (noise)
+  +  0.000  +   0.000  cascade            nearby-gamma-ray-burst -> global-food-system-shock-multi-breadbasket-failure (x4)   (noise)
+  +  0.000  +   0.000  cascade            nearby-supernova -> global-food-system-shock-multi-breadbasket-failure (x3.5)   (noise)
+  +  0.000    -0.007  engine             chronic baseline subtraction (AMR + climate already in the UN projection)   (noise)
+  +  0.000  +   0.693  engine             prompt/famine split (all deaths treated as famine, i.e. fully buffered)   (noise)
+   -0.007  +   0.040  cascade            regional-nuclear-exchange -> global-food-system-shock-multi-breadbasket-failure (x4)   (noise)
+   -0.007  +   0.353  cascade            great-power-and-interstate-war -> full-scale-strategic-exchange (x4)   (noise)
+   -0.007    -0.007  cascade            vei7-large-explosive-eruption -> global-food-system-shock-multi-breadbasket-failure (x3)   (noise)
+   -0.007    -0.007  cascade            vei8-supereruption -> global-food-system-shock-multi-breadbasket-failure (x6)   (noise)
+   -0.020    -0.033  cascade            state-bioweapons-programme-use -> laboratory-accident-enhanced-pathogen (x1.5)   (noise)
+   -0.020    -0.187  rate modifier      global-food-system-shock-multi-breadbasket-failure <- warming   (noise)
+   -0.020  +   0.133  cascade            interdependent-infrastructure-cascade -> global-food-system-shock-multi-breadbasket-failure (x2.5)   (noise)
+   -0.027  +   0.320  cascade            mainline-warming-damage -> global-food-system-shock-multi-breadbasket-failure (x1.5)   (noise)
+   -0.033    -0.007  rate modifier      grey-goo-self-replicating-nanotech <- aiCap   (noise)
+   -0.180  +   0.027  rate modifier      unrecoverable-dystopia <- aiCap   (noise)
+   -0.780    -0.800  AGGREGATE          THE ENTIRE COUPLING LAYER — every rate modifier, severity modifier and cascade at once
+   -0.827    -2.333  rate modifier      unaligned-ai <- aiCap
+
+  92 individual choices audited, 2 of them resolvable at 15,000 runs.
+  On P(any ending): 1 resolve — 0 raise risk, 1 lower it.
+  On P(one event >10%): 2 resolve — 0 raise risk, 2 lower it.
+
+  REFUSING a population verdict. 2 of 92 choices resolve above the
+  noise floor, which is not enough to say anything about the set. Most couplings are
+  individually worth a few thousandths of a point; separating one of those from noise
+  would need of order 1.5e+6 runs per trial, times 92 trials.
+
+  AGGREGATE — the whole coupling layer, taken as a body:
+    P(any ending)        lowers it by 0.780 points
+    P(one event >10%)    does not move measurably (-0.800, inside the +/-0.981 floor)
+
+  VERDICT: the coupling layer leans toward LESS risk everywhere it resolves, which is
+  the mirror image of the doom-generator signature and just as worth knowing. Here it
+  is dominated by the rate calibration: pinning the century integral of the rising
+  capability hazards holds their early decades well below where a naive coupling
+  would put them. The couplings are not innocent of bias — they are biased DOWN.

@@ -114,8 +114,15 @@ kept only one. The hazard rates came from the literature, but the *couplings* ar
 mine — and a model built entirely from honest numbers can still be dishonest if the
 joins all lean the same way. It turns each coupling off in turn and measures the
 signed change. If every resolvable choice raised risk, that is the doom-generator
-signature and a finding about the author rather than the world. Result in
-`docs/DIRECTION-AUDIT.txt`: they point both ways.
+signature and a finding about the author rather than the world.
+
+Two results, in `docs/DIRECTION-AUDIT.txt`. The audit **refuses** a verdict on the
+92 individual couplings — only 2 resolve above the noise floor, and separating a
+typical one would need ~1.5 million runs per trial, 92 times over. But the
+aggregate resolves, and it goes the *other* way from the worry: turning the whole
+coupling layer off raises P(any ending) from 0.77% to 1.55%. The layer as a body
+roughly halves the headline, dominated by the rate calibration. The couplings here
+are not innocent of bias — they are biased **down**.
 
 **The biggest disagreement in the field is a control, not a default.** In the 2023
 Existential Risk Persuasion Tournament, superforecasters and AI domain experts

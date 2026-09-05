@@ -77,7 +77,9 @@ assume at least one error was present, and who checked every citation for: does
 the paper exist, are the authors and year right, does the *exact figure claimed*
 match what the source says, does the URL resolve, and does the derived per-year
 rate square with the cited recurrence interval. Corrections from the audit are
-folded into `data/hazards.json` and the audit trail lives in `docs/AUDIT.md`.
+folded into `data/hazards.json`, rendered on each hazard card under "What the
+citation auditor caught", and kept whole in `docs/research-packets.json`. 43 of
+226 citations came back not-confirmed.
 
 This is the same discipline as a structural fact-check on a mineral's twin laws:
 a fabricated citation is worse than no citation, because it survives casual
@@ -112,7 +114,16 @@ that reason rather than pretending it should be a straight line.
 
 Every other knob is swept and must move `P(collapse)` in the direction its label
 claims. A knob that comes back flat is a knob that does nothing, which is a lie
-told to the user; the sweep prints `FLAT` in that case.
+told to whoever drags it.
+
+But "flat" needed a second look. Several knobs act on hazards so rare that no run
+count this bench can afford will show them in an aggregate — the asteroid survey
+acts on something with a 1-in-770,000 annual rate. Reporting those as "this knob
+does nothing" would itself be false. So each sweep also probes the hazard it is
+supposed to act on, directly, through that hazard's own century-cumulative
+probability and mean severity, which resolve exactly and need no Monte Carlo at
+all. A knob that moves its own hazard but not the aggregate now says so, and
+`FLAT` is reserved for one that moves neither.
 
 ## What is deliberately not modelled
 
@@ -131,6 +142,53 @@ told to the user; the sweep prints `FLAT` in that case.
   standing deflection capability comes close). The knobs let you approach it; the
   structure does not let you reach zero. That is a conservatism, and it is stated
   on the page.
+
+## The errors this build actually made
+
+Kept here rather than tidied away, because the list is more useful than the
+architecture. Every one of these was found by an instrument rather than by
+reading the code, and every one inflated the answer.
+
+**The famine was counted twice.** The published severity figures are already
+famine numbers. The winter mechanism charged it again. Roughly doubled the death
+toll of every aerosol hazard.
+
+**Chronic hazards charged deaths the demography already had.** Today's AMR
+burden and today's climate mortality are inside the UN medium variant the model
+grows against. Charging them as catastrophe counted those people twice. This one
+alone put P(losing over half of humanity) at 35%.
+
+**A rate annualised from a by-2100 elicitation was then given a trend.** The
+forecaster was asked about 2100 and answered about 2100; the century's growth is
+already inside the number. Coupling it to a compounding index on top took
+unaligned AI from ~6% century-cumulative to 74%. Fixed by solving each such
+modifier's reference point so the century integral stays pinned while the shape
+stays free to rise — the shape matters, and flattening the rate would have
+thrown away where the risk sits in time.
+
+**A cascade fired off the wrong tier.** "War → nuclear war" triggered on every
+conflict killing a million people, most of which involve no nuclear-armed state.
+Inflated the nuclear hazard by nearly a factor of two.
+
+**The population baseline was mis-calibrated**, and it understated every
+catastrophe on the page. `popGrowth` had been set to the observed 0.85%/yr
+growth rate, but that is not the logistic parameter: the population is already
+within a quarter of its ceiling, so the intrinsic rate must be ~0.0417 to give
+0.85%/yr at 8.2 bn AND land on the UN plateau in the 2080s. The old value grew
+the counterfactual to 9.29 bn by 2126, so every "against the people who would
+otherwise have lived" figure was measured against a world that had already lost
+a billion people for no reason.
+
+**Populations snapped back too fast.** The Black Death evidence is unambiguous
+and the model did not reflect it.
+
+**Two instruments were themselves broken.** The monotonicity sweep used a
+hand-picked tolerance and reported Monte Carlo variance as bent responses; it
+now derives a binomial standard error from the run count. The direction audit
+used one noise floor for two metrics with completely different variances, and
+so reported 1 resolvable choice out of 92 while claiming to have measured them
+all. An instrument that lies about its own resolution is worse than no
+instrument.
 
 ## The deliverable is not the simulator
 

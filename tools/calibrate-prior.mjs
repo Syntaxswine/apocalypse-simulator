@@ -14,7 +14,7 @@ const hazards = JSON.parse(readFileSync(new URL('../data/hazards.json', import.m
 const N = Number(process.argv[2]) || 60000;
 
 function cfgAt(mult, horizon) {
-  const c = { ...CONST, horizon, keepTrace: false, enabled: {} };
+  const c = { ...CONST, horizon, keepTrace: false, fan: false, enabled: {} };
   for (const k of KNOBS) c[k.id] = k.def;
   for (const h of hazards) c.enabled[h.id] = true;
   c.aiPrior = mult;

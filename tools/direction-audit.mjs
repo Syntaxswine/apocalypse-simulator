@@ -30,7 +30,9 @@ const N = Number(process.argv[2]) || 20000;
 const SEED = 20260904;
 
 function baseCfg() {
-  const c = { ...CONST, horizon: 75, keepTrace: false, enabled: {} };
+  // fan:false — this tool never reads the percentile envelope and computing it
+  // ninety-three times over is most of the runtime.
+  const c = { ...CONST, horizon: 75, keepTrace: false, fan: false, enabled: {} };
   for (const k of KNOBS) c[k.id] = k.def;
   for (const h of hazards) c.enabled[h.id] = true;
   return c;
@@ -82,6 +84,17 @@ trials.push({
   what: 'prompt/famine split (all deaths treated as famine, i.e. fully buffered)',
   apply: (hs) => { for (const h of hs) for (const t of h.tiers) t.promptDeaths = 0; },
 });
+// The aggregate. Individually most couplings are far too small to resolve — to
+// see a 0.02-point effect on a 0.77% baseline would take about 1.5 million runs
+// per trial, and there are ninety-three of them. Turning the whole coupling
+// layer off at once IS resolvable, and it is the summary that actually supports
+// a claim: it says which way the layer leans as a body, which is the question
+// the audit exists to answer.
+trials.push({
+  kind: 'AGGREGATE',
+  what: 'THE ENTIRE COUPLING LAYER — every rate modifier, severity modifier and cascade at once',
+  apply: (hs) => { for (const h of hs) { h.rateMods = []; h.sevMods = []; h.cascades = []; } },
+});
 
 const rows = [];
 for (const t of trials) {
@@ -121,22 +134,67 @@ for (const r of rows) {
   );
 }
 
-const sig = rows.filter((r) => Math.abs(r.delta) > tol);
+const AGG = rows.find((r) => r.kind === 'AGGREGATE');
+const indiv = rows.filter((r) => r.kind !== 'AGGREGATE');
+const sig = indiv.filter((r) => Math.abs(r.delta) > tol);
 const up = sig.filter((r) => r.delta > 0).length;
 const down = sig.filter((r) => r.delta < 0).length;
-const sigS = rows.filter((r) => Math.abs(r.deltaS) > tolS);
+const sigS = indiv.filter((r) => Math.abs(r.deltaS) > tolS);
 const upS = sigS.filter((r) => r.deltaS > 0).length;
 const downS = sigS.filter((r) => r.deltaS < 0).length;
+const resolved = new Set([...sig, ...sigS]).size;
 
-console.log(`\n  ${rows.length} discretionary choices audited.`);
-console.log(`  On P(any ending): ${sig.length} resolve above noise — ${up} raise risk, ${down} lower it.`);
+console.log(`
+  ${indiv.length} individual choices audited, ${resolved} of them resolvable at ${N.toLocaleString()} runs.`);
+console.log(`  On P(any ending): ${sig.length} resolve — ${up} raise risk, ${down} lower it.`);
 console.log(`  On P(one event >10%): ${sigS.length} resolve — ${upS} raise risk, ${downS} lower it.`);
 console.log('');
-const totalUp = up + upS, totalDown = down + downS;
-if (totalDown === 0 && totalUp > 3) {
-  console.log('  VERDICT: every resolvable choice raises risk. That is the doom-generator');
-  console.log('  signature and it should be treated as a finding about the model, not the world.');
-} else {
-  console.log('  VERDICT: choices point both ways, which is what an honestly-built coupling');
-  console.log('  layer looks like. It does not make the couplings right — only unbiased in sign.');
+
+// An instrument that can see three of ninety-two choices has no business
+// delivering a verdict about ninety-two choices. It says so, gives the run
+// count that would be needed, and falls back to the aggregate — which it CAN
+// resolve, and which answers the question that was actually asked.
+if (resolved < indiv.length * 0.2) {
+  const need = Math.ceil(0.00767 * 0.99233 / Math.pow(0.0002 / (2 * Math.SQRT2), 2));
+  console.log(`  REFUSING a population verdict. ${resolved} of ${indiv.length} choices resolve above the`);
+  console.log(`  noise floor, which is not enough to say anything about the set. Most couplings are`);
+  console.log(`  individually worth a few thousandths of a point; separating one of those from noise`);
+  console.log(`  would need of order ${need.toExponential(1)} runs per trial, times ${indiv.length} trials.`);
+  console.log('');
+}
+
+if (AGG) {
+  const verdictOf = (d, t) => (d > t ? 'raises' : d < -t ? 'lowers' : 'unresolved');
+  const a = verdictOf(AGG.delta, tol);
+  const b = verdictOf(AGG.deltaS, tolS);
+  const say = (word, d, t) => word === 'unresolved'
+    ? `does not move measurably (${d >= 0 ? '+' : ''}${d.toFixed(3)}, inside the +/-${t.toFixed(3)} floor)`
+    : `${word} it by ${Math.abs(d).toFixed(3)} points`;
+
+  console.log(`  AGGREGATE — the whole coupling layer, taken as a body:`);
+  console.log(`    P(any ending)        ${say(a, AGG.delta, tol)}`);
+  console.log(`    P(one event >10%)    ${say(b, AGG.deltaS, tolS)}`);
+  console.log('');
+
+  const dirs = [a, b].filter((x) => x !== 'unresolved');
+  if (!dirs.length) {
+    console.log('  VERDICT: even the aggregate does not resolve at this run count. The audit has');
+    console.log('  measured nothing and says so; raise the run count before believing either way.');
+  } else if (dirs.every((x) => x === 'raises')) {
+    console.log('  VERDICT: the coupling layer leans toward MORE risk everywhere it resolves. That is');
+    console.log('  the doom-generator direction. It is not proof of one — couplings between');
+    console.log('  catastrophes genuinely do mostly amplify — but it means every individual coupling');
+    console.log('  deserves the question "would I have chosen this multiplier if it pointed the');
+    console.log('  other way?", and the answer should be written down.');
+  } else if (dirs.every((x) => x === 'lowers')) {
+    console.log('  VERDICT: the coupling layer leans toward LESS risk everywhere it resolves, which is');
+    console.log('  the mirror image of the doom-generator signature and just as worth knowing. Here it');
+    console.log('  is dominated by the rate calibration: pinning the century integral of the rising');
+    console.log('  capability hazards holds their early decades well below where a naive coupling');
+    console.log('  would put them. The couplings are not innocent of bias — they are biased DOWN.');
+  } else {
+    console.log('  VERDICT: the layer leans opposite ways on the two measures, which is what a');
+    console.log('  coupling set that was not written toward a conclusion tends to look like.');
+    console.log('  It does not make the couplings right — only unbiased in sign.');
+  }
 }

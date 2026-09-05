@@ -32,7 +32,7 @@ const head = (s) => console.log(`\n${s}\n${'─'.repeat(Math.max(20, s.length))}
 const note = (s) => console.log(`       ${s}`);
 
 function defaults(over = {}) {
-  const cfg = { ...CONST, horizon: 100, keepTrace: false, enabled: {} };
+  const cfg = { ...CONST, horizon: 100, keepTrace: false, fan: false, enabled: {} };
   for (const k of KNOBS) cfg[k.id] = k.def;
   for (const h of hazards) cfg.enabled[h.id] = true;
   return { ...cfg, ...over };
