@@ -177,11 +177,21 @@ function markDirty() {
 
 // ── the run ───────────────────────────────────────────────────────────────
 
+let worker = null;
+function getWorker() {
+  if (worker) return worker;
+  try {
+    worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
+  } catch { worker = null; }
+  return worker;
+}
+
 function run() {
   if (running) return;
   running = true;
   $('#run').disabled = true;
   $('#busy').classList.add('on');
+  $('#busy').textContent = 'RUNNING…';
 
   const n = +$('#runs').value;
   cfg.horizon = +$('#horizon').value;
@@ -189,30 +199,45 @@ function run() {
   const base = /^-?\d+$/.test(seedTxt) ? (Math.abs(+seedTxt) >>> 0) || 1 : seedFromString(seedTxt);
   const active = HAZ.filter((h) => cfg.enabled[h.id]);
 
-  const ens = makeEnsemble(cfg, n);
-  const runCfg = { ...cfg, keepTrace: false };
-  let i = 0;
-  const CHUNK = Math.max(200, Math.round(n / 40));
-
-  const step = () => {
-    const end = Math.min(n, i + CHUNK);
-    for (; i < end; i++) ens.push(runOnce(active, runCfg, seedFor(base, i), ens.slot()));
-    $('#busy').textContent = `RUNNING… ${Math.round((i / n) * 100)}%`;
-    if (i < n) return requestAnimationFrame(step);
-
-    lastRes = ens.finish();
-    // One run kept in full, traced, to be told as a story. It is the first
-    // seed of the ensemble, so the narrated history is genuinely a member of
-    // the distribution above it and not a hand-picked exciting one.
+  const finish = (res) => {
+    lastRes = res;
+    // One run kept in full and traced, to be told as a story. It is seed #0 of
+    // the same ensemble, so the narrated history is genuinely a member of the
+    // distribution drawn above it rather than a chosen dramatic one.
     lastRun = runOnce(active, { ...cfg, keepTrace: true }, seedFor(base, 0));
     render();
     running = false;
     $('#run').disabled = false;
     $('#busy').classList.remove('on');
-    $('#busy').textContent = 'RUNNING…';
     history.replaceState(null, '', toHash());
   };
-  requestAnimationFrame(step);
+
+  const w = getWorker();
+  if (w) {
+    w.onmessage = (e) => {
+      if (e.data.type === 'progress') {
+        $('#busy').textContent = `RUNNING… ${Math.round((e.data.done / e.data.n) * 100)}%`;
+      } else if (e.data.type === 'done') {
+        finish(e.data.result);
+      }
+    };
+    w.onerror = () => { worker = null; finish(runManyLocal(active, n, base)); };
+    // cfg carries an onDraw hook in the check harness; it is a function and
+    // would not survive structured cloning, so send a clean copy.
+    const { onDraw, ...plain } = cfg;
+    w.postMessage({ hazards: active, cfg: plain, n, base });
+    return;
+  }
+  // No worker available (very old browser, or a file:// open). Run inline and
+  // accept the freeze — it is a few seconds at the largest setting.
+  requestAnimationFrame(() => finish(runManyLocal(active, n, base)));
+}
+
+function runManyLocal(active, n, base) {
+  const ens = makeEnsemble(cfg, n);
+  const runCfg = { ...cfg, keepTrace: false };
+  for (let i = 0; i < n; i++) ens.push(runOnce(active, runCfg, seedFor(base, i), ens.slot()));
+  return ens.finish();
 }
 
 // ── rendering ─────────────────────────────────────────────────────────────
@@ -372,7 +397,7 @@ function renderCards() {
       const t = el('table');
       const th = el('tr');
       th.append(el('th', null, 'at your settings'), el('th', 'num', 'value'), el('th', 'num', '×rate'), el('th', null, 'why'));
-      t.append(el('thead')).firstChild.append(th);
+      const thead = el('thead'); thead.append(th); t.append(thead);
       const tb = el('tbody');
       for (const c of chain) {
         const tr = el('tr');
@@ -389,7 +414,7 @@ function renderCards() {
     const hr = el('tr');
     hr.append(el('th', null, 'if it happens'), el('th', 'num', 'chance'), el('th', 'num', 'dead'),
       el('th', 'num', 'sunlight'), el('th', 'num', 'recovery'), el('th', null, ''));
-    tt.append(el('thead')).firstChild.append(hr);
+    const thead2 = el('thead'); thead2.append(hr); tt.append(thead2);
     const tb2 = el('tbody');
     for (const t of h.tiers) {
       const tr = el('tr');
@@ -437,7 +462,7 @@ function renderStatic() {
   const hr = el('tr');
   hr.append(el('th', null, 'source'), el('th', 'num', 'year'), el('th', null, 'what it estimates'),
     el('th', 'num', 'figure'), el('th', null, 'method'));
-  t.append(el('thead')).firstChild.append(hr);
+  const bhead = el('thead'); bhead.append(hr); t.append(bhead);
   const tb = el('tbody');
   for (const b of BENCH.aggregate) {
     const tr = el('tr');
