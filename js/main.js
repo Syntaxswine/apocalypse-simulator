@@ -263,11 +263,12 @@ function render() {
     if (sub) c.append(el('div', 'sub', sub));
     return c;
   };
-  const seTxt = `±${(r.seExtinct * 100 * 1.96).toFixed(3)} at 95%`;
+  const seTxt = `+/-${(r.seEnded * 100 * 1.96).toFixed(2)} at 95%`;
   v.append(
-    cell('a catastrophe (>10% dead)', pct(r.pScratch, r.pScratch < 0.05 ? 2 : 1), '', `by ${endYear}`, r.pScratch > 0.05),
-    cell('a collapse (>50% dead)', pct(r.pCollapse, 2), '', `by ${endYear}`, r.pCollapse > 0.02),
-    cell('the end', pct(r.pExtinct, 3), '', seTxt, r.pExtinct > 0.005),
+    cell('one event kills >10%', pct(r.pScratch, r.pScratch < 0.05 ? 2 : 1), '', `by ${endYear}`, r.pScratch > 0.15),
+    cell('one event kills >50%', pct(r.pCollapse, 2), '', `by ${endYear}`, r.pCollapse > 0.05),
+    cell('extinction', pct(r.pExtinct, 2), '', seTxt, r.pExtinct > 0.01),
+    cell('lock-in', pct(r.pLockIn, 2), '', 'alive, with no future', r.pLockIn > 0.01),
     cell('median population in ' + endYear, r.popMedian.toFixed(2), 'bn',
       `against ${CONST.popPeak.toFixed(1)} bn if nothing happened`),
     cell('worst 1-in-10 world loses', pct(r.p90Drawdown, 0), '', 'of the people who would have lived'),
@@ -283,7 +284,7 @@ function render() {
     'likely to finish you. They are usually different lists, and the gap between them is the ' +
     'single most useful thing a model like this produces.';
   drawBars($('#barsFirst'), r.firstCatastrophe, r.n, 'of all worlds');
-  drawBars($('#barsEnd'), r.byEnding, Math.max(1, r.extinct), 'of ended worlds');
+  drawBars($('#barsEnd'), r.byEnding, Math.max(1, r.extinct + r.lockedIn), 'of ended worlds');
 
   const leg = $('#catLegend'); leg.textContent = '';
   for (const [cat, color] of Object.entries(CATCOLOR)) {
@@ -427,11 +428,16 @@ function renderCards() {
         el('td', 'num', pct(t.deaths, t.deaths < 0.01 ? 2 : 0)),
         el('td', 'num', t.sunLoss ? `−${pct(t.sunLoss, 0)} × ${t.winterYears}y` : '—'),
         el('td', 'num', t.recovery ? t.recovery + ' y' : '—'),
-        el('td', null, t.terminal ? 'no recovery' : t.absolute ? 'unsurvivable' : ''),
+        el('td', null, t.absolute ? 'unsurvivable' : t.lockIn ? 'lock-in' : t.terminal ? 'no recovery' : ''),
       );
       tb2.append(tr);
       const dr = el('tr');
-      const dc = el('td', 'note'); dc.colSpan = 6; dc.textContent = t.desc || '';
+      const dc = el('td', 'note'); dc.colSpan = 6;
+      dc.textContent = (t.desc || '');
+      if (t.split) {
+        dc.append(el('span', 'hint', ` — of the ${pct(t.deaths, t.deaths < 0.01 ? 3 : 0)}, ` +
+          `${pct(t.deaths > 0 ? t.promptDeaths / t.deaths : 0, 0)} is prompt and the rest famine. ${t.split}`));
+      }
       dr.append(dc); tb2.append(dr);
     }
     tt.append(tb2);
@@ -445,6 +451,16 @@ function renderCards() {
       a.href = c.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
       p.append(a, document.createTextNode(' — '), el('span', 'fig', c.figure), document.createTextNode(' ' + (c.claim || '')));
       b.append(p);
+    }
+    if (h.audit && h.audit.length) {
+      b.append(el('h3', null, `What the citation auditor caught (${h.audit.length})`));
+      for (const a of h.audit) {
+        const p = el('div', 'cite');
+        p.append(el('span', 'badge auth', a.status.replace(/-/g, ' ')));
+        p.append(document.createTextNode(' ' + a.note));
+        if (a.corrected) p.append(el('div', null, 'Corrected: ' + a.corrected));
+        b.append(p);
+      }
     }
     if (h.uncertainty) {
       b.append(el('h3', null, 'Where this is weakest'));

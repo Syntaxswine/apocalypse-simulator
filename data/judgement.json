@@ -1,0 +1,1706 @@
+{
+ "_note": [
+  "The judgement layer. Everything in data/hazards.json that is NOT a copy of a",
+  "researched figure lives here, so the two can be argued with separately.",
+  "",
+  "The researchers gave a rate, a set of severity tiers with death fractions, and",
+  "citations. They could not give: how much of a death toll is prompt rather than",
+  "famine (which decides whether a grain reserve helps), how much stratospheric",
+  "aerosol an event puts up and for how long, how much industry it destroys, how",
+  "world state should move the rate, or how hard one hazard leans on another.",
+  "Those are modelling calls and they are mine. Each carries a `why`.",
+  "",
+  "PROMPT vs FAMINE is the call that matters most. Published global death figures",
+  "for aerosol events are famine numbers — Xia et al. 2022 separate ~27M direct",
+  "deaths from ~260M famine deaths at 5 Tg of soot, and ~360M from >5bn at 150 Tg.",
+  "Prompt deaths are not buffered by anything; famine deaths are what the food",
+  "system knobs act on. Getting this split wrong makes the whole food half of the",
+  "model either inert or omnipotent."
+ ],
+ "drop": {
+  "grain-reserve-buffer-thinness": "Not an event — a STATE, already carried by the reserveDays knob. Its worst tier is explicitly conditional on an abrupt sunlight reduction also happening, which the volcano, impact and nuclear hazards already roll for. Keeping it would double-count the same famine.",
+  "grain-export-ban-cascade": "Same defect: the severe tier is 'trade shutdown DURING a global production shock'. Carried by the tradeOpenness knob and by the asymmetric trade term in resilience().",
+  "jit-logistics-and-settlement-spof": "Its own severity tiers are conditional on another shock; the researcher labelled its key parameters 'MULTIPLIER USE' in the source packet. Folded into the infrastructure hazard and the reserve knob.",
+  "resilient-food-deployment-failure": "Explicitly defined as 'a shock beginning in a year in which resilient-food capacity remains undeployed' — i.e. it is a conditional severity modifier wearing an event's clothes. It IS the resilientFoodShare knob."
+ },
+ "cascadeMap": {
+  "global-famine": "global-food-system-shock-multi-breadbasket-failure",
+  "global-famine-and-trade-collapse": "global-food-system-shock-multi-breadbasket-failure",
+  "abrupt-sunlight-reduction-famine": "global-food-system-shock-multi-breadbasket-failure",
+  "systemic-food-system-failure": "global-food-system-shock-multi-breadbasket-failure",
+  "global-famine-and-infrastructure-collapse": "global-food-system-shock-multi-breadbasket-failure",
+  "global-famine-and-uv-driven-ecosystem-collapse": "global-food-system-shock-multi-breadbasket-failure",
+  "nuclear-war": "full-scale-strategic-exchange",
+  "conflict": "great-power-and-interstate-war",
+  "conflict-and-war": "great-power-and-interstate-war",
+  "great-power-conflict": "great-power-and-interstate-war",
+  "conflict-and-state-fragility": "great-power-and-interstate-war",
+  "infrastructure-collapse": "interdependent-infrastructure-cascade",
+  "infrastructure-and-technological-collapse": "interdependent-infrastructure-cascade",
+  "infrastructure-and-supply-chain-collapse": "interdependent-infrastructure-cascade",
+  "systemic-supply-chain-failure": "interdependent-infrastructure-cascade",
+  "satellite-and-gnss-infrastructure-loss": "interdependent-infrastructure-cascade",
+  "engineered-pandemic": "engineered-pandemic-deliberate-release",
+  "pandemic": "natural-pandemic",
+  "pandemic-risk": "natural-pandemic",
+  "asteroid-comet-impact": "large-asteroid-impact",
+  "stratospheric-ozone-depletion": null,
+  "ozone-depletion-and-uv-stress": null,
+  "nuclear-reactor-station-blackout": null,
+  "systemic-healthcare-capacity-loss": null
+ },
+ "hazards": {
+  "large-asteroid-impact": {
+   "anthropogenic": false,
+   "rateMods": [
+    {
+     "var": "neoSurvey",
+     "var2": "deflection",
+     "op": "retire",
+     "ref": 0,
+     "coef": 1,
+     "why": "an object is only removed from the board if it is BOTH catalogued AND deflected — the retired fraction is the product, which is why full deflection capability against an empty catalogue buys nothing"
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 0.01,
+     "infra": 0.02,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "regional: blast, tsunami and thermal pulse, all of it prompt and none of it buffered by a grain reserve"
+    },
+    {
+     "promptDeaths": 0.01,
+     "infra": 0.12,
+     "sunLoss": 0.3,
+     "winterYears": 4,
+     "why": "the prompt toll is unchanged — the extra 29% is famine, from stratospheric dust suppressing photosynthesis"
+    },
+    {
+     "promptDeaths": 0.03,
+     "infra": 0.65,
+     "sunLoss": 0.8,
+     "winterYears": 12,
+     "why": "Senel et al. 2023 put fine silicate dust lifetime at ~15 years and photosynthesis shutdown at ~2 years for Chicxulub loading"
+    },
+    {
+     "promptDeaths": 0.05,
+     "infra": 0.95,
+     "sunLoss": 0.92,
+     "winterYears": 25,
+     "why": "the tail of the same distribution"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "global-food-system-shock-multi-breadbasket-failure",
+     "mult": 3,
+     "years": 6,
+     "why": "the winter IS a breadbasket failure, and it arrives on a food system already drawing down"
+    },
+    {
+     "to": "interdependent-infrastructure-cascade",
+     "mult": 2,
+     "years": 5,
+     "why": "regional destruction plus a global demand shock"
+    },
+    {
+     "to": "full-scale-strategic-exchange",
+     "mult": 2.5,
+     "years": 1,
+     "when": "Regional catastrophe, no sustained impact winter",
+     "why": "an unwarned airburst over or near a nuclear-armed state during a crisis is the classic misattribution scenario"
+    }
+   ]
+  },
+  "long-period-comet-impact": {
+   "anthropogenic": false,
+   "rateMods": [
+    {
+     "var": "deflection",
+     "op": "inv",
+     "ref": 0,
+     "coef": 0.12,
+     "why": "a dynamically new comet arrives with months of warning, not decades: the NRC found intercepts permit only ~0.5-tonne payloads, so only a standing pre-built interceptor helps at all, and the survey knob does nothing whatsoever — these objects are not in any catalogue by construction"
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 0.02,
+     "infra": 0.05,
+     "sunLoss": 0.08,
+     "winterYears": 2,
+     "why": "ocean or remote strike"
+    },
+    {
+     "promptDeaths": 0.02,
+     "infra": 0.2,
+     "sunLoss": 0.42,
+     "winterYears": 6,
+     "why": "39.5 km/s median encounter speed delivers ~3.9x the energy of an equal-mass asteroid, so the winter is deeper for the same diameter"
+    },
+    {
+     "promptDeaths": 0.04,
+     "infra": 0.7,
+     "sunLoss": 0.82,
+     "winterYears": 14,
+     "why": "Chicxulub-class"
+    },
+    {
+     "promptDeaths": 0.06,
+     "infra": 0.96,
+     "sunLoss": 0.93,
+     "winterYears": 28,
+     "why": "the tail"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "global-food-system-shock-multi-breadbasket-failure",
+     "mult": 3.5,
+     "years": 8,
+     "why": "same mechanism as the asteroid, with less warning to draw down reserves in advance"
+    },
+    {
+     "to": "large-asteroid-impact",
+     "mult": 1,
+     "years": 1,
+     "why": "shares the severity ladder; no rate coupling claimed"
+    }
+   ]
+  },
+  "mainline-warming-damage": {
+   "anthropogenic": true,
+   "chronic": 10,
+   "rate": {
+    "cap": 1
+   },
+   "sevMods": [
+    {
+     "var": "warming",
+     "op": "pow",
+     "ref": 2.7,
+     "coef": 1.6,
+     "why": "damage tracks REALISED warming rather than a scenario label, so the emissions and sensitivity knobs reach it. Reference is 2.7 °C — the AR6 SSP2-4.5 figure the tier table is written against — so at that warming the model reproduces the cited numbers exactly. Exponent 1.6 because heat mortality and yield loss both rise faster than linearly"
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 0.00016,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "40% prompt (heat, flood, vector-borne), 60% via food. Tabulated over ten years and spread accordingly"
+    },
+    {
+     "promptDeaths": 0.00056,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "same split"
+    },
+    {
+     "promptDeaths": 0.0034,
+     "infra": 0.005,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "same split"
+    },
+    {
+     "promptDeaths": 0.008,
+     "infra": 0.02,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "the food-system-failure tier tips toward famine: 20% prompt"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "tipping-cascade-high-sensitivity-tail",
+     "mult": 1.4,
+     "years": 20,
+     "why": "every tenth of a degree raises the probability of crossing a threshold; Armstrong McKay et al. place several central thresholds inside the mainline range"
+    },
+    {
+     "to": "global-food-system-shock-multi-breadbasket-failure",
+     "mult": 1.5,
+     "years": 15,
+     "why": "Gaupp et al. measure synchronous multi-breadbasket failure probability rising from 0.3% to 1.2% per year as warming proceeded"
+    },
+    {
+     "to": "great-power-and-interstate-war",
+     "mult": 1.15,
+     "years": 20,
+     "why": "Kemp et al. name conflict as one of four proximate mass-mortality pathways; the coupling is real and the magnitude is contested, so it is kept small"
+    }
+   ],
+   "baseline": 0.0004,
+   "baselineWhy": "Same correction. Today's climate mortality is inside the demographic projection already. The Paris-consistent tier is approximately today's damage, so it charges nothing, and the model reports the cost of the gap between 1.8 C and wherever the pathway actually goes."
+  },
+  "tipping-cascade-high-sensitivity-tail": {
+   "anthropogenic": true,
+   "rate": {
+    "cap": 0.08
+   },
+   "rateMods": [
+    {
+     "var": "warming",
+     "op": "pow",
+     "ref": 2.7,
+     "coef": 3.0,
+     "why": "steeply rising in realised warming — the whole content of Armstrong McKay et al. is that thresholds are crossed at particular temperatures, and most of the global core ones sit between 1.5 and 4 °C",
+     "normalise": true
+    },
+    {
+     "var": "sensitivityScale",
+     "op": "pow",
+     "ref": 1,
+     "coef": 2,
+     "why": "a higher climate sensitivity reaches every threshold sooner; AR6 gives a very likely range of 2–5 °C around a best estimate of 3"
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 0.003,
+     "infra": 0.02,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "cascade without decimation — almost entirely food and displacement, so 15% prompt"
+    },
+    {
+     "promptDeaths": 0.018,
+     "infra": 0.1,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "Kemp et al.'s decimation threshold; still famine-dominated"
+    },
+    {
+     "promptDeaths": 0.045,
+     "infra": 0.3,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "their global-catastrophe threshold"
+    },
+    {
+     "promptDeaths": 0.15,
+     "infra": 0.8,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "the tail. No sunLoss on any tier: climate catastrophe is a warming mechanism, not an aerosol one, and pretending otherwise would let a grain reserve buy more than it should"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "global-food-system-shock-multi-breadbasket-failure",
+     "mult": 3,
+     "years": 30,
+     "why": "multi-breadbasket failure is the actual famine mechanism Kemp et al. identify"
+    },
+    {
+     "to": "great-power-and-interstate-war",
+     "mult": 1.6,
+     "years": 30,
+     "why": "Kemp et al. note the projected 29 °C-plus belt in 2070 overlaps two nuclear-armed states"
+    },
+    {
+     "to": "engineered-pandemic-deliberate-release",
+     "mult": 1.2,
+     "years": 20,
+     "why": "Kemp et al. note seven maximum-containment laboratories fall in areas of rising climate hazard; a weak coupling, kept weak"
+    }
+   ]
+  },
+  "engineered-pandemic-deliberate-release": {
+   "anthropogenic": true,
+   "rate": {
+    "cap": 0.02
+   },
+   "rateMods": [
+    {
+     "var": "synthScreening",
+     "op": "inv",
+     "ref": 0.8,
+     "coef": 0.9,
+     "why": "screening is a leaky filter on ONE chokepoint. Reference is 0.8, the present coverage of commercial synthesis by consortium members, so at today's coverage the cited rate is reproduced. Benchtop synthesisers and non-member providers are the gap, which is why full coverage does not take the rate to zero"
+    },
+    {
+     "var": "bioCap",
+     "op": "pow",
+     "ref": 1,
+     "coef": 0.5,
+     "why": "square-root rather than linear in the capability index. Linear coupling to a compounding index produces a certainty within decades, which is the shape of the coupling being read back rather than a finding — see the runaway instrument in tools/check.mjs",
+     "normalise": true
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 0.017,
+     "infra": 0.02,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "a pathogen kills people directly; ~85% prompt with the remainder from care-system and supply collapse"
+    },
+    {
+     "promptDeaths": 0.1,
+     "infra": 0.08,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "same split"
+    },
+    {
+     "promptDeaths": 0.44,
+     "infra": 0.35,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "at civilisational scale more of the toll shifts to secondary failure: 80% prompt"
+    },
+    {
+     "promptDeaths": 0.78,
+     "infra": 0.85,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "the tier Ord's estimate is really about"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "interdependent-infrastructure-cascade",
+     "mult": 1.8,
+     "years": 5,
+     "why": "operators are people; a grid needs staffed control rooms"
+    },
+    {
+     "to": "global-food-system-shock-multi-breadbasket-failure",
+     "mult": 1.6,
+     "years": 4,
+     "why": "harvest labour and logistics"
+    }
+   ]
+  },
+  "laboratory-accident-enhanced-pathogen": {
+   "anthropogenic": true,
+   "rate": {
+    "cap": 0.12
+   },
+   "rateMods": [
+    {
+     "var": "bioCap",
+     "op": "pow",
+     "ref": 1,
+     "coef": 0.35,
+     "why": "accident rate is close to linear in facility-years, and facility count tracks the size of the field — 69 BSL-4 labs in operation, under construction or planned"
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 1.4e-08,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "a contained outbreak of 50 cases"
+    },
+    {
+     "promptDeaths": 9e-06,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "regional epidemic"
+    },
+    {
+     "promptDeaths": 0.009,
+     "infra": 0.02,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "global pandemic"
+    },
+    {
+     "promptDeaths": 0.26,
+     "infra": 0.2,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "the catastrophic branch, which requires the escaped agent to be one of the enhanced ones"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "engineered-pandemic-deliberate-release",
+     "mult": 1.4,
+     "years": 10,
+     "why": "a demonstrated escape publicises both the feasibility and the agent"
+    }
+   ]
+  },
+  "state-bioweapons-programme-use": {
+   "anthropogenic": true,
+   "rate": {
+    "cap": 0.02
+   },
+   "rateMods": [
+    {
+     "var": "crisisRate",
+     "op": "pow",
+     "ref": 1,
+     "coef": 0.8,
+     "why": "use happens inside armed conflict, so it scales with the tempo of confrontation"
+    },
+    {
+     "var": "bioCap",
+     "op": "pow",
+     "ref": 1,
+     "coef": 0.3,
+     "why": "weakly rising: state programmes are gated on political decision more than on technical capability"
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 4.5e-05,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "theatre-scale, ~90% prompt"
+    },
+    {
+     "promptDeaths": 0.0085,
+     "infra": 0.03,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "multi-theatre"
+    },
+    {
+     "promptDeaths": 0.29,
+     "infra": 0.3,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "strategic exchange with transmissible agents — the branch that stops being a weapon and becomes a pandemic"
+    },
+    {
+     "promptDeaths": 0.76,
+     "infra": 0.85,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "the tail"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "engineered-pandemic-deliberate-release",
+     "mult": 2,
+     "years": 10,
+     "why": "a state programme is the principal source of leaked expertise and material"
+    },
+    {
+     "to": "laboratory-accident-enhanced-pathogen",
+     "mult": 1.5,
+     "years": 15,
+     "why": "a programme necessarily operates high-containment facilities, and wartime ones badly"
+    }
+   ]
+  },
+  "regional-nuclear-exchange": {
+   "anthropogenic": true,
+   "rateMods": [
+    {
+     "var": "crisisRate",
+     "op": "pow",
+     "ref": 1,
+     "coef": 1,
+     "why": "Hellman's chain runs the probability directly off the frequency of crises that could initiate — three potential initiating events in fifty years, times the chance one becomes a full crisis"
+    },
+    {
+     "var": "warheads",
+     "op": "pow",
+     "ref": 12241,
+     "coef": 0.15,
+     "why": "only weakly rising in the GLOBAL count: a regional exchange is driven by its own dyad, not by the world total"
+    }
+   ],
+   "sevMods": [
+    {
+     "var": "cityTargeting",
+     "op": "pow",
+     "ref": 0.5,
+     "coef": 1.0,
+     "why": "soot is roughly linear in the fraction of warheads landing on cities up to target-list exhaustion, and Xia et al.'s famine deaths follow soot directly. This is the single most decisive severity knob on the board"
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 0.0051,
+     "infra": 0.05,
+     "sunLoss": 0.07,
+     "winterYears": 5,
+     "why": "Xia et al. 5 Tg: 27M direct against 260M famine — 9% of the toll is prompt. Everything else is the food system"
+    },
+    {
+     "promptDeaths": 0.0127,
+     "infra": 0.12,
+     "sunLoss": 0.15,
+     "winterYears": 7,
+     "why": "16-27 Tg: ~75M direct against ~1.2bn famine — 6% prompt"
+    },
+    {
+     "promptDeaths": 0.023,
+     "infra": 0.2,
+     "sunLoss": 0.25,
+     "winterYears": 9,
+     "why": "37-47 Tg: ~145M direct against ~2.3bn famine — 6% prompt"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "full-scale-strategic-exchange",
+     "mult": 5,
+     "years": 3,
+     "why": "the strongest coupling on the board: a nuclear war that has already started is the dominant pathway to a larger one"
+    },
+    {
+     "to": "global-food-system-shock-multi-breadbasket-failure",
+     "mult": 4,
+     "years": 8,
+     "why": "Xia et al.'s death tolls already assume international food trade stops"
+    },
+    {
+     "to": "interdependent-infrastructure-cascade",
+     "mult": 2,
+     "years": 5,
+     "why": "EMP and the loss of regional generation"
+    }
+   ]
+  },
+  "full-scale-strategic-exchange": {
+   "anthropogenic": true,
+   "rateMods": [
+    {
+     "var": "crisisRate",
+     "op": "pow",
+     "ref": 1,
+     "coef": 1,
+     "why": "Hellman: ~6% per year of a potential initiating event, times ~1/3 that it becomes a full crisis"
+    },
+    {
+     "var": "warheads",
+     "op": "pow",
+     "ref": 12241,
+     "coef": 0.4,
+     "why": "a larger arsenal raises both the chance a crisis goes strategic and the number of hands on a launch decision, but sub-linearly — the 1986 peak of ~70,300 was not six times more dangerous than today"
+    }
+   ],
+   "sevMods": [
+    {
+     "var": "cityTargeting",
+     "op": "pow",
+     "ref": 0.5,
+     "coef": 1.1,
+     "why": "Toon et al.: soot scales with cities burned, and it is soot that starves people. A purely counterforce exchange is a fraction as lethal globally as a countervalue one with the same warheads"
+    },
+    {
+     "var": "warheads",
+     "op": "pow",
+     "ref": 12241,
+     "coef": 0.45,
+     "why": "severe diminishing returns once the target list is exhausted — Toon et al. 2008's 180 Tg came from far more warheads than exist today, and halving the arsenal does not halve the soot"
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 0.03,
+     "infra": 0.45,
+     "sunLoss": 0.25,
+     "winterYears": 6,
+     "why": "counterforce-weighted: relatively more of the deaths are prompt because relatively less soot goes up"
+    },
+    {
+     "promptDeaths": 0.045,
+     "infra": 0.7,
+     "sunLoss": 0.55,
+     "winterYears": 10,
+     "why": "Xia et al. 150 Tg: ~360M direct against >5bn without adequate calories. 5.5% of this toll is prompt. This tier is the single best-sourced catastrophe on the whole board and it is 94% a famine"
+    },
+    {
+     "promptDeaths": 0.05,
+     "infra": 0.85,
+     "sunLoss": 0.7,
+     "winterYears": 12,
+     "why": "winter plus civilisational collapse"
+    },
+    {
+     "promptDeaths": 0.06,
+     "infra": 0.95,
+     "sunLoss": 0.8,
+     "winterYears": 15,
+     "why": "the tail"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "global-food-system-shock-multi-breadbasket-failure",
+     "mult": 6,
+     "years": 12,
+     "why": "this is the actual killing mechanism and it is already internal to the tier figures; the boost is for what a SECOND shock does on top"
+    },
+    {
+     "to": "interdependent-infrastructure-cascade",
+     "mult": 4,
+     "years": 15,
+     "why": "loss of grids, refining and Haber-Bosch"
+    },
+    {
+     "to": "synthetic-nitrogen-dependence",
+     "mult": 6,
+     "years": 15,
+     "why": "ammonia synthesis needs an intact industrial base; roughly half the world is fed by it"
+    },
+    {
+     "to": "natural-pandemic",
+     "mult": 2,
+     "years": 10,
+     "why": "undernutrition raises infectious-disease incidence and case-fatality"
+    },
+    {
+     "to": "great-power-and-interstate-war",
+     "mult": 2,
+     "years": 20,
+     "why": "the post-war order"
+    }
+   ]
+  },
+  "great-power-and-interstate-war": {
+   "anthropogenic": true,
+   "rateMods": [
+    {
+     "var": "crisisRate",
+     "op": "pow",
+     "ref": 1,
+     "coef": 0.7,
+     "why": "Cirillo & Taleb and Clauset independently find war severity extremely fat-tailed and the 'long peace' not statistically distinguishable from chance, so the base rate is treated as stationary and only the crisis tempo moves it"
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 0.00026,
+     "infra": 0.01,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "70% prompt: war kills by violence, but war famine and disease have historically been comparable"
+    },
+    {
+     "promptDeaths": 0.0028,
+     "infra": 0.05,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "world-war scale"
+    },
+    {
+     "promptDeaths": 0.026,
+     "infra": 0.15,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "beyond any recorded war — the fat tail Cirillo & Taleb argue is under-appreciated"
+    },
+    {
+     "promptDeaths": 0.14,
+     "infra": 0.5,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "civilisational"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "full-scale-strategic-exchange",
+     "mult": 4,
+     "years": 5,
+     "why": "conventional great-power war is the dominant pathway to nuclear use — gated on the world-war-scale tiers and above, because most conflicts killing a million people involve no nuclear-armed state at all and an ungated cascade inflated the nuclear hazard by nearly a factor of two",
+     "when": [
+      "World-war scale",
+      "Beyond any recorded war",
+      "Civilisational"
+     ]
+    },
+    {
+     "to": "regional-nuclear-exchange",
+     "mult": 4,
+     "years": 5,
+     "why": "same — gated on the world-war-scale tiers and above, because most conflicts killing a million people involve no nuclear-armed state at all and an ungated cascade inflated the nuclear hazard by nearly a factor of two",
+     "when": [
+      "World-war scale",
+      "Beyond any recorded war",
+      "Civilisational"
+     ]
+    },
+    {
+     "to": "chemical-radiological-weapons",
+     "mult": 4,
+     "years": 5,
+     "why": "essentially all chemical-weapons deaths since 1918 occurred inside wars"
+    },
+    {
+     "to": "state-bioweapons-programme-use",
+     "mult": 3,
+     "years": 6,
+     "why": "use requires a war to use them in — gated on the world-war-scale tiers and above, because most conflicts killing a million people involve no nuclear-armed state at all and an ungated cascade inflated the nuclear hazard by nearly a factor of two",
+     "when": [
+      "World-war scale",
+      "Beyond any recorded war",
+      "Civilisational"
+     ]
+    },
+    {
+     "to": "engineered-pandemic-deliberate-release",
+     "mult": 1.5,
+     "years": 8,
+     "why": "wartime states relax biosafety and restart programmes"
+    },
+    {
+     "to": "unrecoverable-dystopia",
+     "mult": 2,
+     "years": 20,
+     "why": "a decisive hegemonic victory collapses the number of independent great powers, which is the strongest driver in Caplan's treatment"
+    }
+   ]
+  },
+  "chemical-radiological-weapons": {
+   "anthropogenic": true,
+   "rateMods": [
+    {
+     "var": "crisisRate",
+     "op": "pow",
+     "ref": 1,
+     "coef": 0.6,
+     "why": "use tracks conflict"
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 6.1e-07,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "entirely prompt"
+    },
+    {
+     "promptDeaths": 6.1e-06,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "entirely prompt"
+    },
+    {
+     "promptDeaths": 3.7e-05,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "maximum plausible use. On the board precisely because it is terrible and NOT civilisation-threatening — the numbers say so and the page should show it"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "great-power-and-interstate-war",
+     "mult": 1.3,
+     "years": 3,
+     "why": "a recognised escalation rung"
+    }
+   ]
+  },
+  "unrecoverable-dystopia": {
+   "anthropogenic": true,
+   "rate": {
+    "cap": 0.004
+   },
+   "rateMods": [
+    {
+     "var": "aiCap",
+     "op": "pow",
+     "ref": 1,
+     "coef": 0.5,
+     "why": "Caplan's three historical failure modes — the closet sceptic, mass defection by enforcers, and succession — are each closed by surveillance and enforcement automation rather than by ideology. The capability index is the only available proxy, and it is a rough one",
+     "normalise": true
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 0.008,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "a totalitarian order that later collapses: repression deaths, then recovery"
+    },
+    {
+     "promptDeaths": 0.016,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "lockIn": true,
+     "why": "LOCK-IN, not extinction. Millennium-scale entrenchment. Almost everyone is alive; there is no future to have. A body-count model literally cannot see this outcome, which is why it gets its own ending kind"
+    },
+    {
+     "promptDeaths": 0.0004,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "lockIn": true,
+     "why": "LOCK-IN with almost no deaths at all — the version Caplan considers most likely once genetic and neurological control is available, and the one that most embarrasses the metric"
+    }
+   ],
+   "cascades": []
+  },
+  "unaligned-ai": {
+   "anthropogenic": true,
+   "rate": {
+    "cap": 0.03
+   },
+   "rateMods": [
+    {
+     "var": "aiCap",
+     "op": "pow",
+     "ref": 1,
+     "coef": 0.6,
+     "why": "the XPT and the AI Impacts surveys both condition on capability arriving, so the capability index drives the rate — at a square-ish exponent, because a linear coupling to a compounding index manufactures certainty. This is the single most contested number in the whole model and the disagreement between superforecasters and domain experts on it is larger than an order of magnitude",
+     "normalise": true
+    }
+   ],
+   "sevMods": [
+    {
+     "var": "alignmentEffort",
+     "op": "pow",
+     "ref": 1,
+     "coef": -0.35,
+     "why": "NO published study estimates an elasticity of catastrophe probability to alignment spending. This exponent is an author estimate with no empirical support and it is the weakest number on the board — it is here so the knob is not a lie, not because it is known"
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 0.14,
+     "infra": 0.2,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "major catastrophe, civilisation intact"
+    },
+    {
+     "promptDeaths": 0.45,
+     "infra": 0.6,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "collapse with eventual recovery"
+    },
+    {
+     "promptDeaths": 0.02,
+     "infra": 0.3,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "lockIn": true,
+     "why": "LOCK-IN. Permanent disempowerment without extinction — the tabulated 0.2 death fraction is a transition cost, not the outcome. The outcome is that humanity no longer decides anything"
+    },
+    {
+     "promptDeaths": 1.0,
+     "infra": 1.0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "absolute": true,
+     "why": "the extinction branch, and one of only four tiers on the board marked absolute — it does not care how many people there are or where they are standing"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "unrecoverable-dystopia",
+     "mult": 3,
+     "years": 25,
+     "why": "the same capability that makes disempowerment possible makes entrenchment possible"
+    }
+   ]
+  },
+  "ai-enabled-misuse": {
+   "anthropogenic": true,
+   "rate": {
+    "cap": 0.03
+   },
+   "rateMods": [
+    {
+     "var": "aiCap",
+     "op": "pow",
+     "ref": 1,
+     "coef": 0.5,
+     "why": "capability proxy. Note the honest anchor underneath: RAND's red-team study found NO statistically significant biological uplift from current models, so the measured value of the uplift ratio is 1.0 — this hazard's rate is an extrapolation, not a measurement",
+     "normalise": true
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 3e-06,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "contained incident"
+    },
+    {
+     "promptDeaths": 0.018,
+     "infra": 0.03,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "regional mass-casualty event or limited pandemic"
+    },
+    {
+     "promptDeaths": 0.25,
+     "infra": 0.25,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "global catastrophe, dominated by the biological sub-mechanism"
+    },
+    {
+     "promptDeaths": 0.8,
+     "infra": 0.85,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "terminal release"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "engineered-pandemic-deliberate-release",
+     "mult": 2.5,
+     "years": 10,
+     "why": "the dominant sub-mechanism — this hazard is mostly a route INTO that one"
+    },
+    {
+     "to": "unaligned-ai",
+     "mult": 1.3,
+     "years": 10,
+     "why": "same capability frontier, same deployment surface"
+    },
+    {
+     "to": "full-scale-strategic-exchange",
+     "mult": 1.5,
+     "years": 3,
+     "why": "automated escalation compresses the decision cycle below the time a human needs"
+    }
+   ]
+  },
+  "biosphere-degradation-pollinator-and-soil-loss": {
+   "anthropogenic": true,
+   "rateMods": [
+    {
+     "var": "warming",
+     "op": "pow",
+     "ref": 2.7,
+     "coef": 1.2,
+     "why": "degradation steps arrive faster in a warmer world",
+     "normalise": true
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 0.0001,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "absorbed by inputs — 20% prompt, the rest through food"
+    },
+    {
+     "promptDeaths": 0.0008,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "regionally binding"
+    },
+    {
+     "promptDeaths": 0.004,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "the yield ceiling falls. The honest shape of this hazard: it does not kill directly, it removes the buffer that everything else is absorbed by"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "global-food-system-shock-multi-breadbasket-failure",
+     "mult": 1.6,
+     "years": 25,
+     "why": "the primary and arguably only important effect"
+    }
+   ]
+  },
+  "global-food-system-shock-multi-breadbasket-failure": {
+   "anthropogenic": true,
+   "rateMods": [
+    {
+     "var": "warming",
+     "op": "pow",
+     "ref": 2.7,
+     "coef": 1.8,
+     "why": "Gaupp et al. measure the probability of synchronous multi-breadbasket wheat failure rising from 0.3% per year (1967-1990) to 1.2% (1991-2012). That is a measured, not assumed, warming coupling — one of the few on the board",
+     "normalise": true
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 2e-05,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "price spike, reserves hold. 5% prompt: this hazard is famine by definition"
+    },
+    {
+     "promptDeaths": 0.0004,
+     "infra": 0.01,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "export-restriction cascade — the 2007-08 and 2010-11 shape"
+    },
+    {
+     "promptDeaths": 0.0025,
+     "infra": 0.04,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "multi-year deficit, reserves exhausted"
+    },
+    {
+     "promptDeaths": 0.0125,
+     "infra": 0.15,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "compound collapse"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "great-power-and-interstate-war",
+     "mult": 2,
+     "years": 5,
+     "why": "food price spikes transmit to unrest and government failure; the 2010-11 literature is contested on causality and the multiplier is kept modest for that reason"
+    },
+    {
+     "to": "natural-pandemic",
+     "mult": 1.3,
+     "years": 5,
+     "why": "undernutrition raises incidence and case-fatality"
+    },
+    {
+     "to": "biosphere-degradation-pollinator-and-soil-loss",
+     "mult": 1.3,
+     "years": 10,
+     "why": "emergency cropland expansion and fallow-breaking"
+    }
+   ]
+  },
+  "vei7-large-explosive-eruption": {
+   "anthropogenic": false,
+   "tiers": [
+    {
+     "promptDeaths": 0.0005,
+     "infra": 0.005,
+     "sunLoss": 0.03,
+     "winterYears": 2,
+     "why": "remote vent: the deaths are proximal and prompt"
+    },
+    {
+     "promptDeaths": 0.002,
+     "infra": 0.02,
+     "sunLoss": 0.08,
+     "winterYears": 3,
+     "why": "a Tambora repeat. 1815 gave the Year Without a Summer and a European subsistence crisis — the deaths were overwhelmingly famine and typhus, not pyroclastic flow"
+    },
+    {
+     "promptDeaths": 0.004,
+     "infra": 0.05,
+     "sunLoss": 0.15,
+     "winterYears": 5,
+     "why": "clustered eruptions, or a hit on an already-stressed food system. Newhall et al.: multiple sulfur-rich eruptions within years of each other compound"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "global-food-system-shock-multi-breadbasket-failure",
+     "mult": 3,
+     "years": 5,
+     "why": "the principal non-nuclear route to a multi-year global harvest shortfall"
+    },
+    {
+     "to": "great-power-and-interstate-war",
+     "mult": 1.4,
+     "years": 5,
+     "why": "Newhall et al. note social unrest if desperation sets in"
+    }
+   ]
+  },
+  "vei8-supereruption": {
+   "anthropogenic": false,
+   "tiers": [
+    {
+     "promptDeaths": 0.002,
+     "infra": 0.02,
+     "sunLoss": 0.1,
+     "winterYears": 4,
+     "why": "attenuated — aerosol microphysics limits the forcing. This tier exists because the forcing exponent is the single largest disagreement in supereruption science"
+    },
+    {
+     "promptDeaths": 0.004,
+     "infra": 0.15,
+     "sunLoss": 0.35,
+     "winterYears": 8,
+     "why": "volcanic winter"
+    },
+    {
+     "promptDeaths": 0.01,
+     "infra": 0.5,
+     "sunLoss": 0.6,
+     "winterYears": 14,
+     "why": "a decade without a summer. Note the ratio: 1% of the deaths are from the eruption and 99% from the harvests it prevents"
+    },
+    {
+     "promptDeaths": 0.02,
+     "infra": 0.9,
+     "sunLoss": 0.75,
+     "winterYears": 22,
+     "why": "the tail. The Toba genetic-bottleneck claim that used to justify this tier is now contested — several genetic analyses find no bottleneck coinciding with Toba"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "global-food-system-shock-multi-breadbasket-failure",
+     "mult": 6,
+     "years": 12,
+     "why": "the canonical natural abrupt-sunlight-reduction scenario"
+    },
+    {
+     "to": "great-power-and-interstate-war",
+     "mult": 2,
+     "years": 15,
+     "why": "grain export bans and mass migration under a decade-long cooling"
+    },
+    {
+     "to": "interdependent-infrastructure-cascade",
+     "mult": 2,
+     "years": 10,
+     "why": "ashfall and a collapsing demand base"
+    }
+   ]
+  },
+  "synthetic-nitrogen-dependence": {
+   "anthropogenic": true,
+   "rateMods": [
+    {
+     "var": "industry",
+     "op": "inv",
+     "ref": 1,
+     "coef": 1.5,
+     "why": "Haber-Bosch is an industrial process consuming at least 32 MJ per kg of nitrogen fixed. A damaged industrial base is precisely what stops it, which makes this hazard the main channel by which infrastructure loss becomes starvation"
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 0.0001,
+     "infra": 0.02,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "regional fertiliser famine — 2% prompt, this is a food hazard end to end"
+    },
+    {
+     "promptDeaths": 0.003,
+     "infra": 0.05,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "global staple yield collapse. Erisman et al. put the share of humanity fed by synthetic nitrogen at ~48%"
+    },
+    {
+     "promptDeaths": 0.011,
+     "infra": 0.15,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "compounding a sunlight reduction or a full infrastructure loss"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "global-food-system-shock-multi-breadbasket-failure",
+     "mult": 4,
+     "years": 8,
+     "why": "fertiliser interruption shows up as a yield shortfall one to two seasons later"
+    }
+   ]
+  },
+  "interdependent-infrastructure-cascade": {
+   "anthropogenic": true,
+   "rateMods": [
+    {
+     "var": "gridHardening",
+     "op": "inv",
+     "ref": 0.15,
+     "coef": 0.5,
+     "why": "hardening reduces the rate of the large events; reference 0.15 is the present, poorly-quantified level of transformer protection and held spares"
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 1e-05,
+     "infra": 0.03,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "days-scale blackout restored by black start"
+    },
+    {
+     "promptDeaths": 0.001,
+     "infra": 0.12,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "weeks-scale outage with gas and water failure — half the deaths prompt (heat, cold, medical), half through food"
+    },
+    {
+     "promptDeaths": 0.04,
+     "infra": 0.4,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "months-scale continental grid loss"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "synthetic-nitrogen-dependence",
+     "mult": 5,
+     "years": 3,
+     "why": "no grid, no ammonia"
+    },
+    {
+     "to": "global-food-system-shock-multi-breadbasket-failure",
+     "mult": 2.5,
+     "years": 4,
+     "why": "cold chains, irrigation pumping and rail"
+    }
+   ]
+  },
+  "natural-pandemic": {
+   "anthropogenic": false,
+   "rateMods": [
+    {
+     "var": "spillover",
+     "op": "pow",
+     "ref": 1,
+     "coef": 1,
+     "why": "Marani et al.'s own emergence-rate multiplier, and the cleanest lever in their paper. Land-use change, livestock density (livestock are ~60% of mammal biomass) and wildlife trade set it"
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 0.0165,
+     "infra": 0.01,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "1918-class. ~92% prompt"
+    },
+    {
+     "promptDeaths": 0.09,
+     "infra": 0.06,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "Columbian-exchange-class regional annihilation"
+    },
+    {
+     "promptDeaths": 0.3,
+     "infra": 0.25,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "civilisation-stressing"
+    },
+    {
+     "promptDeaths": 0.9,
+     "infra": 0.6,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "the terminal tier, whose probability the researcher set at essentially zero — heterogeneity of susceptibility and isolated populations are why a NATURAL pandemic is very unlikely to be an extinction risk, and the model should show that rather than flatten it"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "antimicrobial-resistance",
+     "mult": 1.5,
+     "years": 10,
+     "why": "mass antibiotic use during secondary bacterial infection"
+    },
+    {
+     "to": "interdependent-infrastructure-cascade",
+     "mult": 1.5,
+     "years": 3,
+     "why": "grids need staffed control rooms"
+    },
+    {
+     "to": "great-power-and-interstate-war",
+     "mult": 1.2,
+     "years": 5,
+     "why": "weak, and kept weak"
+    }
+   ]
+  },
+  "antimicrobial-resistance": {
+   "anthropogenic": true,
+   "chronic": 10,
+   "rate": {
+    "cap": 1
+   },
+   "tiers": [
+    {
+     "promptDeaths": 0.0059,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "the current observed burden — GRAM put AMR-attributable deaths at 1.14 million in 2021. Entirely prompt: this kills people in hospitals, not through the food system"
+    },
+    {
+     "promptDeaths": 0.0085,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "the GRAM 2050 trajectory"
+    },
+    {
+     "promptDeaths": 0.0103,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "O'Neill's high scenario"
+    },
+    {
+     "promptDeaths": 0.03,
+     "infra": 0.02,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "a pan-resistant tail. On the board as the one hazard here that is already happening at scale and still is not remotely civilisation-threatening — which is itself worth seeing"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "natural-pandemic",
+     "mult": 1.3,
+     "years": 20,
+     "why": "secondary bacterial infection is what kills in most influenza pandemics"
+    }
+   ],
+   "baseline": 0.0059,
+   "baselineWhy": "The current observed burden — GRAM's 1.14 million AMR-attributable deaths in 2021 — is ALREADY inside the UN medium-variant projection this model grows against. Charging it as a catastrophe would count those people twice. Only the excess over today's burden is a loss against the baseline, so the observed tier charges exactly nothing and the model reports what WORSENING costs."
+  },
+  "vacuum-decay-false-vacuum": {
+   "anthropogenic": false,
+   "tiers": [
+    {
+     "promptDeaths": 1,
+     "infra": 1,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "absolute": true,
+     "why": "the only genuinely and instantly unsurvivable thing on the board — a true-vacuum bubble expanding at the speed of light. Also, at a computed universe lifetime of 10^139 years, by an overwhelming margin the last thing to worry about. Both facts belong on the same page"
+    },
+    {
+     "promptDeaths": 0,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "bubble beyond the cosmological event horizon: it happens and never reaches us"
+    }
+   ],
+   "cascades": []
+  },
+  "strangelet-conversion": {
+   "anthropogenic": true,
+   "tiers": [
+    {
+     "promptDeaths": 0,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "produced and decays — the physical expectation"
+    },
+    {
+     "promptDeaths": 0,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "stable but positively charged, therefore repelled by nuclei and harmless"
+    },
+    {
+     "promptDeaths": 1,
+     "infra": 1,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "absolute": true,
+     "why": "runaway conversion. Retained at a probability of effectively zero because the EMPIRICAL bound is the interesting part: the Moon has been bombarded by cosmic-ray heavy ions for 4.5 Gyr and is still there"
+    }
+   ],
+   "cascades": []
+  },
+  "grey-goo-self-replicating-nanotech": {
+   "anthropogenic": true,
+   "rate": {
+    "cap": 0.005
+   },
+   "rateMods": [
+    {
+     "var": "aiCap",
+     "op": "pow",
+     "ref": 1,
+     "coef": 0.3,
+     "why": "atomically precise manufacturing does not exist, so there is nothing to measure. The capability index is a weak proxy for whether it ever will, and the whole hazard is gated on a technology that has not been demonstrated. Phoenix & Drexler themselves argue the real concern is deliberate misuse of molecular manufacturing rather than accidental ecophagy",
+     "normalise": true
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 0.00012,
+     "infra": 0.02,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "contained incident"
+    },
+    {
+     "promptDeaths": 0.125,
+     "infra": 0.4,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "global ecophagy or nanotech war"
+    },
+    {
+     "promptDeaths": 1.0,
+     "infra": 1.0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "absolute": true,
+     "why": "extinction"
+    }
+   ],
+   "cascades": []
+  },
+  "collider-microscopic-black-hole": {
+   "anthropogenic": true,
+   "tiers": [
+    {
+     "promptDeaths": 0,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "evaporation in ~1e-27 s, which is what quantum field theory says happens"
+    },
+    {
+     "promptDeaths": 0,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "stable but harmless"
+    },
+    {
+     "promptDeaths": 1,
+     "infra": 1,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "absolute": true,
+     "why": "runaway accretion, at a rate of EXACTLY ZERO. Kept on the board for that reason: over 3x10^22 cosmic rays at or above LHC energies have struck Earth since it formed, and white dwarfs and neutron stars survive the same bombardment. This is what a genuinely retired risk looks like, and the page needs one for calibration"
+    }
+   ],
+   "cascades": []
+  },
+  "carrington-class-geomagnetic-superstorm": {
+   "anthropogenic": false,
+   "sevMods": [
+    {
+     "var": "gridHardening",
+     "op": "inv",
+     "ref": 0.15,
+     "coef": 0.85,
+     "why": "the whole severity of this hazard is a manufacturing lead time. Extra-high-voltage transformers run 36 months to replace, 82% of supply is imported, and the North American fleet averages 39 years old. Hardening and held spares are the entire difference between a one-day event and a multi-year one"
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 2e-07,
+     "infra": 0.02,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "regional trip, hours to days — the March 1989 Quebec shape"
+    },
+    {
+     "promptDeaths": 5e-05,
+     "infra": 0.12,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "multi-region transformer loss, weeks to months. Half prompt, half through food and water"
+    },
+    {
+     "promptDeaths": 0.0032,
+     "infra": 0.35,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "continental grid loss for one to two years — the transformer lead time made flesh"
+    },
+    {
+     "promptDeaths": 0.03,
+     "infra": 0.7,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "multi-continental industrial collapse"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "interdependent-infrastructure-cascade",
+     "mult": 6,
+     "years": 3,
+     "why": "this IS an infrastructure cascade, initiated from outside"
+    },
+    {
+     "to": "synthetic-nitrogen-dependence",
+     "mult": 3,
+     "years": 3,
+     "why": "no grid, no ammonia"
+    },
+    {
+     "to": "global-food-system-shock-multi-breadbasket-failure",
+     "mult": 2,
+     "years": 5,
+     "why": "cold chains and irrigation"
+    }
+   ]
+  },
+  "extreme-solar-particle-event": {
+   "anthropogenic": false,
+   "sevMods": [
+    {
+     "var": "gridHardening",
+     "op": "inv",
+     "ref": 0.15,
+     "coef": 0.5,
+     "why": "partially shared mitigation with the geomagnetic case"
+    }
+   ],
+   "tiers": [
+    {
+     "promptDeaths": 1e-08,
+     "infra": 0.02,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "radiation and technology damage, no ecological effect. The five Holocene events confirmed in carbon-14 are all in this class"
+    },
+    {
+     "promptDeaths": 0.0004,
+     "infra": 0.08,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "compound event: particles plus an extreme geomagnetic storm"
+    },
+    {
+     "promptDeaths": 0.001,
+     "infra": 0.1,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "soft-spectrum variant with severe ozone depletion — half the toll shifts to crop failure"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "carrington-class-geomagnetic-superstorm",
+     "mult": 2,
+     "years": 2,
+     "why": "the two arrive together often enough that the coupling is worth carrying"
+    }
+   ]
+  },
+  "nearby-gamma-ray-burst": {
+   "anthropogenic": false,
+   "tiers": [
+    {
+     "promptDeaths": 0.002,
+     "infra": 0.01,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "partial ozone loss. 10% prompt: a GRB does not burn you, it removes the ozone and then the UV removes the crops and the plankton"
+    },
+    {
+     "promptDeaths": 0.03,
+     "infra": 0.05,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "Ordovician-class: ~35% global ozone depletion sustained over five years"
+    },
+    {
+     "promptDeaths": 0.08,
+     "infra": 0.3,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "close burst, deep and prolonged depletion"
+    },
+    {
+     "promptDeaths": 0.15,
+     "infra": 0.6,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "the tail"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "global-food-system-shock-multi-breadbasket-failure",
+     "mult": 4,
+     "years": 10,
+     "why": "UV-driven crop and plankton loss is a food-system event by another route"
+    }
+   ]
+  },
+  "nearby-supernova": {
+   "anthropogenic": false,
+   "tiers": [
+    {
+     "promptDeaths": 5e-05,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "atmospheric shielding holds"
+    },
+    {
+     "promptDeaths": 0.005,
+     "infra": 0.03,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "Gehrels-class: ~47% ozone depletion, doubled biologically active UV, at 8 pc"
+    },
+    {
+     "promptDeaths": 0.04,
+     "infra": 0.25,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "very close event with centuries of elevated cosmic rays — the feature that distinguishes a supernova from a GRB is that it keeps going"
+    }
+   ],
+   "cascades": [
+    {
+     "to": "global-food-system-shock-multi-breadbasket-failure",
+     "mult": 3.5,
+     "years": 20,
+     "why": "same UV mechanism, over a longer period"
+    }
+   ]
+  },
+  "stellar-encounter-oort-cloud-perturbation": {
+   "anthropogenic": false,
+   "tiers": [
+    {
+     "promptDeaths": 0,
+     "infra": 0,
+     "sunLoss": 0,
+     "winterYears": 0,
+     "why": "a shower arrives and nothing hits"
+    },
+    {
+     "promptDeaths": 0.002,
+     "infra": 0.1,
+     "sunLoss": 0.3,
+     "winterYears": 4,
+     "why": "a km-class cometary impact during the shower — the impact-winter ladder again"
+    },
+    {
+     "promptDeaths": 0.02,
+     "infra": 0.6,
+     "sunLoss": 0.75,
+     "winterYears": 12,
+     "why": "a ten-km-class cometary impact"
+    }
+   ],
+   "cascades": []
+  }
+ }
+}

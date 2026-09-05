@@ -65,10 +65,13 @@ export function initialWorld(cfg) {
     // Cumulative bookkeeping.
     deaths: 0,
     worstDrawdown: 0,
+    worstEvent: 0,
     events: [],
-    // Terminal state.
+    // Terminal state. endKind separates the two ways a run can stop, which are
+    // genuinely different outcomes and must not be summed into one number.
     alive: true,
     ending: null,
+    endKind: null,
     endYear: null,
   };
 }
@@ -121,6 +124,24 @@ function advanceTrends(w, cfg, rng) {
   }
 }
 
+// The world's path with nothing going wrong: warming accumulating, capability
+// indices compounding, arsenals drifting to their policy target. Exported
+// because two other places need it and must not re-derive it — the rate
+// calibration in tools/build-hazards.mjs, and the runaway instrument in
+// tools/check.mjs. A calibration computed against a slightly different
+// trajectory than the engine actually runs would be silently wrong in a way
+// nothing would catch.
+export function quietTrajectory(cfg, years) {
+  const w = initialWorld(cfg);
+  const out = [];
+  for (let y = 0; y < years; y++) {
+    out.push({ year: w.year, warming: w.warming, aiCap: w.aiCap, bioCap: w.bioCap, warheads: w.warheads, industry: w.industry, pop: w.pop, reserveDays: w.reserveDays });
+    w.year = cfg.startYear + y;
+    advanceTrends(w, cfg, null);
+  }
+  return out;
+}
+
 // Total fractional loss of growing-season sunlight from all active winters.
 // Overlapping injections do not simply add — the stratosphere saturates — so
 // they combine as one-minus-product of transmissions.
@@ -146,9 +167,18 @@ export function resilience(w, cfg) {
   // Sunlight-independent calories that can be stood up inside the crisis.
   const alt = cfg.resilientFoodShare;
   // Trade openness cuts both ways and the literature is explicit about this:
-  // open trade moves food from surplus to deficit regions, but it also
-  // propagates export bans. The peak is at high-but-not-total openness.
-  const trade = 1 - 0.35 * (4 * cfg.tradeOpenness * (1 - cfg.tradeOpenness));
+  // open trade moves food from surplus to deficit regions (Puma et al. on the
+  // food-trade network), and it propagates export bans (2007-08, 2010-11,
+  // 2022). The optimum therefore sits at high-but-not-total openness, and the
+  // curve is deliberately ASYMMETRIC: autarky is far worse than hyper-openness,
+  // because 83% of countries have low or marginal food self-sufficiency.
+  // Calibrated to exactly 1.0 at the default of 0.75, so that at default
+  // settings the model reproduces the published death figures rather than
+  // silently discounting them.
+  const t = cfg.tradeOpenness;
+  const trade = t < 0.75
+    ? 1 + 0.45 * Math.pow((0.75 - t) / 0.75, 2)
+    : 1 + 0.25 * Math.pow((t - 0.75) / 0.25, 2);
   // Concurrent stresses compound rather than add: a famine during a pandemic
   // during a grid failure is worse than the sum.
   const concurrent = 1 + 0.25 * Math.max(0, w.winters.length - 1);
@@ -168,13 +198,33 @@ export function resilience(w, cfg) {
 function applyTier(w, cfg, hz, tier, rng) {
   const scale = resilience(w, cfg) * severityScale(hz, tier, w, cfg);
 
-  // Prompt deaths — blast, disease, the event itself. These are not buffered
-  // by grain reserves, so they take only the hazard-specific scaling.
-  const prompt = Math.min(1, (tier.promptDeaths ?? 0) * severityScale(hz, tier, w, cfg));
+  // A chronic hazard fires every year, but its tabulated death fraction is a
+  // multi-year total (climate mortality and AMR burden are both published as
+  // annual-or-decadal loads, not as one-off events). Spreading it keeps the
+  // cited number intact and stops the hazard charging it ten times over.
+  //
+  // `baseline` is the second and less obvious correction. The population
+  // projection this model grows against is the UN medium variant, which is a
+  // NET projection: the deaths already happening — including today's climate
+  // mortality and today's 1.14 million annual AMR deaths — are inside it
+  // already. Charging the full observed burden on top would count those people
+  // twice, once in the demography and once as a catastrophe. Only the EXCESS
+  // over what the projection already assumes is a loss against the baseline.
+  // Getting this wrong put P(losing over half of humanity) at 35% on the first
+  // build, almost all of it manufactured by two hazards that are not events.
+  const spread = hz.chronic || 1;
+  const chargeable = Math.max(0, (tier.deaths ?? 0) - (hz.baseline ?? 0));
+  const promptShare = tier.deaths > 0 ? (tier.promptDeaths ?? 0) / tier.deaths : 0;
 
-  // Famine deaths — everything else. These ARE buffered, which is the whole
-  // point of tracking reserves.
-  const famineBase = Math.max(0, (tier.deaths ?? 0) - (tier.promptDeaths ?? 0));
+  // Prompt deaths — blast, disease, the event itself. Not buffered by grain
+  // reserves, so they take only the hazard-specific scaling and not the
+  // resilience term.
+  const prompt = Math.min(1, ((chargeable * promptShare) / spread) * severityScale(hz, tier, w, cfg));
+
+  // Famine deaths — everything else, and on most of this board that is nearly
+  // everything. These ARE buffered, which is the whole point of tracking
+  // reserves, trade and sunless calories.
+  const famineBase = (chargeable * (1 - promptShare)) / spread;
   // Lognormal spread around the tabulated central estimate. sigma 0.45 gives a
   // roughly 2.5x spread between the 10th and 90th percentile, which is the
   // right order for how much these published numbers move between studies.
@@ -206,6 +256,7 @@ function applyTier(w, cfg, hz, tier, rng) {
       : { mult, yearsLeft: years };
   }
 
+  if (killed > w.worstEvent) w.worstEvent = killed;
   w.events.push({
     year: w.year,
     hazard: hz.id,
@@ -221,23 +272,28 @@ function applyTier(w, cfg, hz, tier, rng) {
   return { killed, terminal: !!tier.terminal };
 }
 
-// Ongoing famine pressure from an active winter, charged per year rather than
-// all at once — which is how it actually happens, and which lets recovery and
-// resilient food come into play partway through.
-function chargeWinter(w, cfg, rng) {
+// Advance every active stratospheric-aerosol event by a year.
+//
+// NOTE, because this is the easiest error in the whole model to make and I made
+// it first time round: this function charges NO DEATHS. Every published severity
+// figure this model is built on — Xia et al.'s five billion without adequate
+// calories, the impact-winter harvest-failure estimates, the Tambora and Toba
+// mortality reconstructions — is ALREADY a famine number. It counts the people
+// who starve in years two and three, not the ones under the fireball. Charging
+// famine again per winter-year would double-count the entire mechanism and would
+// roughly double the death toll of every aerosol hazard on the board.
+//
+// So the tabulated deaths carry the famine, scaled by resilience() at the moment
+// the event lands. What an ongoing winter does instead is all second-order, and
+// all real: it drains the grain reserve, it blocks the reserve from refilling
+// (via the sunlight term in advanceTrends), it holds industrial recovery down,
+// and it makes any OTHER event landing during it markedly worse through the
+// concurrent-stress term in resilience(). A volcanic winter does not kill you
+// twice; it makes the next thing that happens far more likely to.
+function advanceWinters(w) {
   const loss = sunLoss(w);
   if (loss <= 0) return;
-  // Calorie shortfall against what is in store. The 0.9 exponent is a soft
-  // nonlinearity: a 20% sunlight loss is much less than a fifth of a 100% loss,
-  // because agriculture has slack and people can eat lower on the food chain.
-  const shortfall = Math.max(0, Math.pow(loss, 0.9) - w.reserveDays / 365);
-  if (shortfall <= 0) return;
-  const mortality = Math.min(0.5, shortfall * 0.55 * resilience(w, cfg));
-  const lost = w.pop * mortality;
-  w.pop -= lost;
-  w.deaths += lost;
-  w.reserveDays = Math.max(0, w.reserveDays - 365 * loss * 0.5);
-
+  w.reserveDays = Math.max(0, w.reserveDays - 365 * loss * 0.35);
   for (const s of w.winters) s.yearsLeft--;
   w.winters = w.winters.filter((s) => s.yearsLeft > 0);
 }
@@ -311,21 +367,34 @@ export function runOnce(hazards, cfg, seed, popOut) {
       }
 
       const res = applyTier(w, cfg, hz, tier, rng);
-      // Two ways a tier can be the end. `absolute` is for the handful of
-      // mechanisms that do not care how many people there are or where they
-      // are standing — false-vacuum decay is the honest example. `terminal`
-      // is the ordinary kind, and it still has to get past the recovery
-      // machinery: a tier labelled "civilisation does not come back" only
-      // ends the run if the population it left behind is small enough for
-      // that claim to be credible.
-      if (tier.absolute || (res.terminal && w.pop * 1e9 < cfg.mvp * 200)) {
+      // Three ways a tier can be the end, and they are not the same thing.
+      //
+      // `absolute` is the handful of mechanisms that do not care how many
+      // people there are or where they are standing — false-vacuum decay is
+      // the honest example.
+      //
+      // `lockIn` is the outcome where humanity persists and its future does
+      // not: a globally entrenched totalitarian order, or permanent
+      // disempowerment by a system nobody can switch off. The published
+      // treatments (Caplan in Bostrom & Cirkovic; Ord's "unrecoverable
+      // dystopia") are explicit that this involves few or no deaths, which
+      // means a body-count model cannot see it at all. Counting it as an
+      // extinction would be wrong and dropping it would be worse, so it gets
+      // its own ending kind and its own line in the verdict.
+      //
+      // `terminal` is the ordinary kind, and it still has to get past the
+      // recovery machinery: a tier labelled "civilisation does not come back"
+      // only ends the run if the population it left behind is small enough
+      // for that claim to be credible.
+      if (tier.absolute || tier.lockIn || (res.terminal && w.pop * 1e9 < cfg.mvp * 200)) {
         w.alive = false;
         w.ending = hz.id;
+        w.endKind = tier.lockIn ? 'lock-in' : 'extinction';
         w.endYear = w.year;
       }
     }
 
-    chargeWinter(w, cfg, rng);
+    advanceWinters(w);
 
     const drawdown = 1 - w.pop / Math.max(0.001, w.popBaseline);
     if (drawdown > w.worstDrawdown) w.worstDrawdown = drawdown;
@@ -334,6 +403,7 @@ export function runOnce(hazards, cfg, seed, popOut) {
       const term = checkTerminal(w, cfg, rng);
       if (term) {
         w.alive = false;
+        w.endKind = 'extinction';
         // Attribute the ending to the last thing that hit hard enough to matter.
         const culprit = [...w.events].reverse().find((e) => e.killedFraction > 0.05);
         w.ending = culprit ? culprit.hazard : term;
@@ -367,6 +437,7 @@ export function runOnce(hazards, cfg, seed, popOut) {
   return {
     survived: w.alive,
     ending: w.ending,
+    endKind: w.endKind,
     endYear: w.endYear,
     pop: w.pop,
     popBaseline: w.popBaseline,
@@ -374,6 +445,7 @@ export function runOnce(hazards, cfg, seed, popOut) {
     warming: w.warming,
     deaths: w.deaths,
     worstDrawdown: w.worstDrawdown,
+    worstEvent: w.worstEvent,
     events: w.events,
     trace,
   };
@@ -396,17 +468,18 @@ export function makeEnsemble(cfg, n) {
   const firstCatastrophe = new Map();
   const popGrid = new Float32Array(n * H);
   const drawdowns = [];
+  const worstEvents = [];
   const popAt = [];
   const yearOfEnd = [];
   const survivalByYear = new Float64Array(H).fill(0);
-  let i = 0, extinct = 0, collapsed = 0, scratched = 0, worstRun = null, luckiest = null;
+  let i = 0, extinct = 0, lockedIn = 0, collapsed = 0, scratched = 0;
 
   return {
     get filled() { return i; },
     slot: () => popGrid.subarray(i * H, (i + 1) * H),
     push(r) {
       if (!r.survived) {
-        extinct++;
+        if (r.endKind === 'lock-in') lockedIn++; else extinct++;
         byEnding.set(r.ending, (byEnding.get(r.ending) || 0) + 1);
         yearOfEnd.push(r.endYear);
         const endIdx = Math.max(0, Math.min(H, r.endYear - cfg.startYear));
@@ -414,9 +487,18 @@ export function makeEnsemble(cfg, n) {
       } else {
         for (let y = 0; y < H; y++) survivalByYear[y]++;
       }
-      if (r.worstDrawdown > 0.5) collapsed++;
-      if (r.worstDrawdown > 0.1) scratched++;
+      // Two different questions, kept apart because the published figures
+      // answer the first and the second is the one a reader actually feels.
+      //   worstEvent    the largest SINGLE event's death fraction — this is
+      //                 what the XPT and Ord mean by "a global catastrophe":
+      //                 an event killing >10% of humanity in a short window.
+      //   worstDrawdown the deepest cumulative shortfall against the population
+      //                 that would otherwise have existed, across everything
+      //                 that happened. Always the larger number.
+      if (r.worstEvent > 0.5) collapsed++;
+      if (r.worstEvent > 0.1) scratched++;
       drawdowns.push(r.worstDrawdown);
+      worstEvents.push(r.worstEvent);
       popAt.push(r.pop);
       const first = r.events.find((e) => e.killedFraction > 0.1);
       if (first) firstCatastrophe.set(first.hazard, (firstCatastrophe.get(first.hazard) || 0) + 1);
@@ -425,6 +507,7 @@ export function makeEnsemble(cfg, n) {
     finish() {
       const used = i;
       drawdowns.sort((a, b) => a - b);
+      worstEvents.sort((a, b) => a - b);
       popAt.sort((a, b) => a - b);
       const q = (arr, p) => arr[Math.min(arr.length - 1, Math.max(0, Math.floor(p * arr.length)))];
 
@@ -440,7 +523,9 @@ export function makeEnsemble(cfg, n) {
 
       return {
         n: used,
-        extinct, collapsed, scratched,
+        extinct, lockedIn, collapsed, scratched,
+        pLockIn: lockedIn / used,
+        pEnded: (extinct + lockedIn) / used,
         pExtinct: extinct / used,
         pCollapse: collapsed / used,
         pScratch: scratched / used,
@@ -450,6 +535,8 @@ export function makeEnsemble(cfg, n) {
         fan,
         medianDrawdown: q(drawdowns, 0.5),
         p90Drawdown: q(drawdowns, 0.9),
+        medianWorstEvent: q(worstEvents, 0.5),
+        p90WorstEvent: q(worstEvents, 0.9),
         popMedian: q(popAt, 0.5),
         popP10: q(popAt, 0.1),
         popP90: q(popAt, 0.9),
@@ -457,6 +544,7 @@ export function makeEnsemble(cfg, n) {
         // A binomial standard error on the headline, so nobody reads three
         // decimal places off a number that only has one.
         seExtinct: Math.sqrt((extinct / used) * (1 - extinct / used) / used),
+        seEnded: Math.sqrt(((extinct + lockedIn) / used) * (1 - (extinct + lockedIn) / used) / used),
       };
     },
   };

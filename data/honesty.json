@@ -1,0 +1,19 @@
+{
+ "footer": "Footer stub.",
+ "items": [
+  {
+   "title": "Stub heading",
+   "warn": true,
+   "body": [
+    "Para one.",
+    "Para two."
+   ]
+  },
+  {
+   "title": "Second",
+   "body": [
+    "Para."
+   ]
+  }
+ ]
+}

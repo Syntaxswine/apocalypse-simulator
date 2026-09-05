@@ -14,8 +14,8 @@
 //   node tools/check.mjs --full     everything, including the slow sweeps
 
 import { readFileSync } from 'node:fs';
-import { runOnce, runMany, initialWorld } from '../js/model.js';
-import { VARS, OPS, hazardRate } from '../js/couplings.js';
+import { runOnce, runMany, initialWorld, quietTrajectory } from '../js/model.js';
+import { VARS, OPS, hazardRate, severityScale } from '../js/couplings.js';
 import { KNOBS, CONST, PRESETS } from '../js/params.js';
 
 const HERE = new URL('.', import.meta.url);
@@ -60,8 +60,12 @@ for (const h of hazards) {
     }
   for (const c of h.cascades || []) {
     if (!ids.has(c.to)) badCascade.push(`${h.id} -> ${c.to}`);
-    if (c.when && c.when !== '*' && !h.tiers.some((t) => t.label === c.when))
-      badCascade.push(`${h.id}: cascade gated on unknown tier "${c.when}"`);
+    if (c.when && c.when !== '*') {
+      for (const label of (Array.isArray(c.when) ? c.when : [c.when])) {
+        if (!h.tiers.some((t) => t.label === label))
+          badCascade.push(`${h.id}: cascade gated on unknown tier "${label}"`);
+      }
+    }
   }
   if ((h.citations || []).length < 3) thinCite.push(`${h.id} (${(h.citations || []).length})`);
   for (const c of h.citations || []) if (!/^https?:\/\//.test(c.url || '')) noUrl.push(`${h.id}: ${c.claim?.slice(0, 40)}`);
@@ -243,11 +247,18 @@ head('INSTRUMENT — does any hazard rate run away over the horizon?');
       wk.warming += cfg.warmingRate * cfg.sensitivityScale;
       wk.warheads += (cfg.warheadTarget - wk.warheads) * 0.03;
     }
-    const flag = g > 30 ? '  <- RUNAWAY' : g > 5 ? '  <- steep' : '';
+    // A rate whose century integral was solved at build time is ALLOWED to
+    // have a steep shape — that is the point of calibrating it. Flagging it as
+    // a runaway would be flagging the intended behaviour, so the column says
+    // which is which.
+    const cal = (h.rateMods || []).some((m) => /solved at build time/.test(m.why || ''));
+    const flag = cal ? '  (integral calibrated)' : g > 30 ? '  <- RUNAWAY' : g > 5 ? '  <- steep' : '';
     console.log(`       ${h.id.padEnd(28)} ${a.toExponential(2).padStart(10)} ${b.toExponential(2).padStart(12)} ` +
       `${g.toFixed(1).padStart(11)}x ${((1 - surv) * 100).toFixed(2).padStart(10)}%${flag}`);
   }
   note('cumulative = P(at least once over the horizon) with the rate drifting as shown.');
+  note('"integral calibrated" = the cited rate was annualised from a by-2100 figure, so the');
+  note('shape is free to rise but the century total is pinned to what was published.');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -263,30 +274,69 @@ head('INSTRUMENT — does each knob move the world in the direction claimed?');
   const SWEEPS = [
     { id: 'reserveDays',        dir: -1, why: 'more grain in store must lower deaths' },
     { id: 'resilientFoodShare', dir: -1, why: 'sunless calories must lower deaths' },
-    { id: 'warheadTarget',      dir: +1, why: 'more warheads must raise deaths' },
-    { id: 'crisisRate',         dir: +1, why: 'more crises must raise deaths' },
-    { id: 'synthScreening',     dir: -1, why: 'screening must lower engineered-pathogen risk' },
-    { id: 'neoSurvey',          dir: -1, why: 'a completer catalogue must lower impact risk' },
-    { id: 'gridHardening',      dir: -1, why: 'hardened transformers must lower space-weather risk' },
-    { id: 'spillover',          dir: +1, why: 'more spillover pressure must raise pandemic risk' },
-    { id: 'aiGrowth',           dir: +1, why: 'faster capability growth must raise AI risk' },
+    { id: 'warheadTarget',      dir: +1, why: 'more warheads must raise deaths',            probe: 'full-scale-strategic-exchange' },
+    { id: 'crisisRate',         dir: +1, why: 'more crises must raise deaths',              probe: 'full-scale-strategic-exchange' },
+    { id: 'cityTargeting',      dir: +1, why: 'soot comes from burning cities',             probe: 'full-scale-strategic-exchange' },
+    { id: 'synthScreening',     dir: -1, why: 'screening must lower engineered-pathogen risk', probe: 'engineered-pandemic-deliberate-release' },
+    { id: 'neoSurvey',          dir: -1, why: 'a completer catalogue must lower impact risk',   probe: 'large-asteroid-impact' },
+    { id: 'deflection',         dir: -1, why: 'deflection must lower impact risk',              probe: 'large-asteroid-impact' },
+    { id: 'gridHardening',      dir: -1, why: 'hardened transformers must lower space-weather risk', probe: 'carrington-class-geomagnetic-superstorm' },
+    { id: 'spillover',          dir: +1, why: 'more spillover pressure must raise pandemic risk',    probe: 'natural-pandemic' },
+    { id: 'aiGrowth',           dir: +1, why: 'faster capability growth must raise AI risk',         probe: 'unaligned-ai' },
+    { id: 'alignmentEffort',    dir: -1, why: 'safety work must lower AI severity',                  probe: 'unaligned-ai' },
+    { id: 'warmingRate',        dir: +1, why: 'a hotter pathway must raise climate risk',            probe: 'tipping-cascade-high-sensitivity-tail' },
     { id: 'tradeOpenness',      dir: 0,  why: 'deliberately non-monotone: openness feeds and it propagates bans' },
   ];
+  // A knob acting on a genuinely rare hazard cannot move an aggregate like
+  // P(collapse) at any run count this bench can afford — the asteroid survey is
+  // the clean example, at 1.3e-6 per year. Reporting that as "this knob does
+  // nothing" would be false: the knob works, on something too rare to see.
+  // So each sweep also probes the hazard it is supposed to act on directly,
+  // through that hazard's own century-cumulative probability and mean severity,
+  // which resolve exactly and need no Monte Carlo at all.
   for (const s of SWEEPS) {
     const k = KNOBS.find((x) => x.id === s.id);
     const pts = [0, 0.25, 0.5, 0.75, 1].map((f) => k.min + f * (k.max - k.min));
     const ys = pts.map((v) => runMany(hazards, defaults({ [s.id]: v, horizon: 100 }), N, 999).pCollapse);
+    // The tolerance has to come from the run count, not from a number somebody
+    // liked the look of. Two independent binomial proportions at N runs have a
+    // standard error of sqrt(2 p (1-p) / N); anything inside two of those is
+    // noise, and calling it a bent response would be reporting the Monte
+    // Carlo's own variance as a finding about the model.
+    const pbar = ys.reduce((a, b) => a + b, 0) / ys.length;
+    const tol = 2 * Math.sqrt(2 * Math.max(1e-6, pbar * (1 - pbar)) / N);
     let mono = true;
     for (let i = 1; i < ys.length; i++) {
       const d = ys[i] - ys[i - 1];
-      if (s.dir > 0 && d < -0.004) mono = false;
-      if (s.dir < 0 && d > 0.004) mono = false;
+      if (s.dir > 0 && d < -tol) mono = false;
+      if (s.dir < 0 && d > tol) mono = false;
     }
-    const flat = Math.abs(ys[ys.length - 1] - ys[0]) < 1e-4;
-    // A flat knob is never "ok" — it is a control that lies to whoever drags it.
-    const tag = flat ? 'FLAT' : s.dir === 0 ? 'n/a ' : mono ? ' ok ' : 'BENT';
-    console.log(`  ${tag}  ${s.id.padEnd(20)} P(collapse): ${ys.map((y) => (y * 100).toFixed(2).padStart(6)).join(' ')}`);
-    if (flat || (s.dir !== 0 && !mono)) note(`        expected: ${s.why}`);
+    // Range, not endpoints. A deliberately non-monotone knob has equal ends and
+    // a real dip in the middle; comparing only the ends would call it dead.
+    const flat = (Math.max(...ys) - Math.min(...ys)) < tol;
+
+    let probeTxt = '', probeMoves = false;
+    if (s.probe) {
+      const hz = hazards.find((h) => h.id === s.probe);
+      const vals = pts.map((v) => {
+        const cfg = defaults({ [s.id]: v, horizon: 100 });
+        const traj = quietTrajectory(cfg, cfg.horizon);
+        let surv = 1, sev = 0;
+        for (const w of traj) surv *= 1 - Math.min(0.95, hazardRate(hz, w, cfg));
+        const w0 = traj[Math.floor(traj.length / 2)];
+        for (const t of hz.tiers) sev += t.p * t.deaths * severityScale(hz, t, w0, cfg);
+        return { p: 1 - surv, sev };
+      });
+      probeMoves = Math.abs(vals[4].p - vals[0].p) > 1e-9 || Math.abs(vals[4].sev - vals[0].sev) > 1e-9;
+      probeTxt = `
+         ${s.probe}: P ${vals.map((v) => (v.p * 100).toFixed(2)).join(' ')} | severity ${vals.map((v) => (v.sev * 100).toFixed(2)).join(' ')}`;
+    }
+
+    // FLAT is only a defect if the knob fails to move its OWN hazard too.
+    const tag = flat && !probeMoves ? 'FLAT' : s.dir === 0 ? 'n/a ' : mono ? ' ok ' : 'BENT';
+    console.log(`  ${tag}  ${s.id.padEnd(20)} P(collapse): ${ys.map((y) => (y * 100).toFixed(2).padStart(6)).join(' ')}  +/-${(tol * 100).toFixed(2)}${probeTxt}`);
+    if (flat && probeMoves) note(`        moves its own hazard cleanly; its share of P(collapse) is below what ${N} runs resolve`);
+    else if (flat || (s.dir !== 0 && !mono)) note(`        expected: ${s.why}`);
   }
   note('P(collapse) = share of runs losing over half the population at some point.');
 }
@@ -305,9 +355,11 @@ head('INSTRUMENT — against the published aggregates');
   const r = runMany(hazards, cfg, N, 4242);
   const bench = JSON.parse(readFileSync(new URL('../data/benchmarks.json', HERE), 'utf8'));
   console.log(`       this model, to 2100, ${N.toLocaleString()} runs:`);
-  console.log(`         P(any event killing >10%)  ${(r.pScratch * 100).toFixed(2)}%`);
-  console.log(`         P(losing over half)        ${(r.pCollapse * 100).toFixed(2)}%`);
-  console.log(`         P(the end)                 ${(r.pExtinct * 100).toFixed(3)}%`);
+  console.log(`         P(one event killing >10%)  ${(r.pScratch * 100).toFixed(2)}%`);
+  console.log(`         P(one event killing >50%)  ${(r.pCollapse * 100).toFixed(2)}%`);
+  console.log(`         P(extinction)              ${(r.pExtinct * 100).toFixed(3)}%  +/-${(r.seExtinct * 196).toFixed(3)}`);
+  console.log(`         P(lock-in)                 ${(r.pLockIn * 100).toFixed(3)}%`);
+  console.log(`         P(either ending)           ${(r.pEnded * 100).toFixed(3)}%  +/-${(r.seEnded * 196).toFixed(3)}`);
   console.log('');
   for (const b of bench.aggregate) {
     console.log(`       ${(b.source + ' ' + b.year).padEnd(42)} ${b.metric.padEnd(30)} ${b.value}`);

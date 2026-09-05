@@ -53,6 +53,14 @@ export const OPS = {
   gate: (v, ref, coef) => (v >= ref ? coef : 1),
   // saturating: approaches `coef` as v grows, for effects with a ceiling
   sat:  (v, ref, coef) => 1 + (coef - 1) * (v / (v + Math.max(1e-9, ref))),
+  // TWO-VARIABLE. The retired fraction of a hazard is the PRODUCT of two
+  // capabilities, not either one alone: an asteroid is only removed from the
+  // board if it is both catalogued AND deflected, and a screening regime only
+  // stops a synthesis order if it both covers that provider AND catches the
+  // sequence. Written as separate one-variable terms this comes out badly
+  // wrong at the corners — full deflection capability against an empty
+  // catalogue would appear to retire the hazard, which is exactly backwards.
+  retire: (v, ref, coef, v2) => Math.max(0.02, 1 - coef * v * (v2 ?? 1)),
 };
 
 function evalMods(mods, w, cfg) {
@@ -62,7 +70,8 @@ function evalMods(mods, w, cfg) {
     const get = VARS[t.var];
     const op = OPS[t.op];
     if (!get || !op) continue; // validated at load; see tools/check.mjs
-    m *= op(get(w, cfg), t.ref, t.coef);
+    const second = t.var2 ? VARS[t.var2]?.(w, cfg) : undefined;
+    m *= op(get(w, cfg), t.ref, t.coef, second);
   }
   return m;
 }
@@ -87,10 +96,20 @@ export function severityScale(hz, tier, w, cfg) {
 }
 
 // [targetId, multiplier, years] triples for the cascades this tier sets off.
+//
+// `when` may be '*', a single tier label, or a list of them. The list matters:
+// a cascade from "war" to "nuclear war" should not fire off every conflict that
+// kills a million people — most of those involve no nuclear-armed state at all —
+// but should fire off the world-war-scale tiers and above. Without per-tier
+// gating the only options are "always" and "never", and "always" quietly
+// inflated the nuclear hazard by nearly a factor of two.
 export function cascadeBoosts(hz, tier) {
   const out = [];
   for (const c of hz.cascades || []) {
-    if (c.when && c.when !== '*' && c.when !== tier.label) continue;
+    if (c.when && c.when !== '*') {
+      const list = Array.isArray(c.when) ? c.when : [c.when];
+      if (!list.includes(tier.label)) continue;
+    }
     out.push([c.to, c.mult, c.years]);
   }
   return out;
@@ -103,7 +122,13 @@ export function explainRate(hz, w, cfg) {
     const get = VARS[t.var], op = OPS[t.op];
     if (!get || !op) continue;
     const v = get(w, cfg);
-    rows.push({ var: t.var, value: v, mult: op(v, t.ref, t.coef), why: t.why || '' });
+    const second = t.var2 ? VARS[t.var2]?.(w, cfg) : undefined;
+    rows.push({
+      var: t.var2 ? `${t.var} × ${t.var2}` : t.var,
+      value: t.var2 ? v * (second ?? 1) : v,
+      mult: op(v, t.ref, t.coef, second),
+      why: t.why || '',
+    });
   }
   return rows;
 }
