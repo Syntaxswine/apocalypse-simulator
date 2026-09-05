@@ -19,7 +19,8 @@ import { VARS, OPS, hazardRate } from '../js/couplings.js';
 import { KNOBS, CONST, PRESETS } from '../js/params.js';
 
 const HERE = new URL('.', import.meta.url);
-const hazards = JSON.parse(readFileSync(new URL('../data/hazards.json', HERE), 'utf8')).hazards;
+const DATA = (process.argv.find((a) => a.startsWith('--data=')) || '').slice(7) || '../data/hazards.json';
+const hazards = JSON.parse(readFileSync(new URL(DATA, HERE), 'utf8')).hazards;
 const FULL = process.argv.includes('--full');
 
 let failures = 0;
@@ -210,6 +211,46 @@ head('INSTRUMENT — the multiplier chain at default settings');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+head('INSTRUMENT — does any hazard rate run away over the horizon?');
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// The two hazards driven by an exponential capability index are the ones that
+// can quietly turn into certainties. A rate coupled to a compounding index by a
+// power law reaches the clamp within decades and the model then says "this
+// happens", which is not a finding — it is the shape of the coupling being read
+// back. Anything growing by more than ~30x across the horizon wants a saturating
+// coupling or an explicit per-hazard cap instead.
+
+{
+  const cfg = defaults({ horizon: 100 });
+  const w0 = initialWorld(cfg);
+  const wEnd = initialWorld(cfg);
+  for (let y = 0; y < cfg.horizon; y++) {
+    wEnd.bioCap *= 1 + cfg.bioGrowth;
+    wEnd.aiCap *= 1 + cfg.aiGrowth;
+    wEnd.warming += cfg.warmingRate * cfg.sensitivityScale;
+    wEnd.warheads += (cfg.warheadTarget - wEnd.warheads) * 0.03;
+  }
+  console.log('       hazard                        at 2026        at end       growth   cumulative');
+  for (const h of hazards) {
+    const a = hazardRate(h, w0, cfg), b = hazardRate(h, wEnd, cfg);
+    const g = b / Math.max(1e-30, a);
+    // Cumulative probability over the horizon under the drifting rate.
+    let surv = 1; const wk = initialWorld(cfg);
+    for (let y = 0; y < cfg.horizon; y++) {
+      surv *= 1 - Math.min(0.95, hazardRate(h, wk, cfg));
+      wk.bioCap *= 1 + cfg.bioGrowth; wk.aiCap *= 1 + cfg.aiGrowth;
+      wk.warming += cfg.warmingRate * cfg.sensitivityScale;
+      wk.warheads += (cfg.warheadTarget - wk.warheads) * 0.03;
+    }
+    const flag = g > 30 ? '  <- RUNAWAY' : g > 5 ? '  <- steep' : '';
+    console.log(`       ${h.id.padEnd(28)} ${a.toExponential(2).padStart(10)} ${b.toExponential(2).padStart(12)} ` +
+      `${g.toFixed(1).padStart(11)}x ${((1 - surv) * 100).toFixed(2).padStart(10)}%${flag}`);
+  }
+  note('cumulative = P(at least once over the horizon) with the rate drifting as shown.');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 head('INSTRUMENT — does each knob move the world in the direction claimed?');
 // ═══════════════════════════════════════════════════════════════════════════
 //
@@ -242,11 +283,10 @@ head('INSTRUMENT — does each knob move the world in the direction claimed?');
       if (s.dir < 0 && d > 0.004) mono = false;
     }
     const flat = Math.abs(ys[ys.length - 1] - ys[0]) < 1e-4;
-    const tag = s.dir === 0 ? 'n/a ' : mono ? ' ok ' : 'BENT';
-    console.log(`  ${tag}  ${s.id.padEnd(20)} P(collapse): ${ys.map((y) => (y * 100).toFixed(2).padStart(6)).join(' ')}` +
-      `${flat ? '   <- FLAT: this knob does nothing' : ''}`);
-    if (flat) note(`        ${s.why}`);
-    else if (s.dir !== 0 && !mono) note(`        ${s.why}`);
+    // A flat knob is never "ok" — it is a control that lies to whoever drags it.
+    const tag = flat ? 'FLAT' : s.dir === 0 ? 'n/a ' : mono ? ' ok ' : 'BENT';
+    console.log(`  ${tag}  ${s.id.padEnd(20)} P(collapse): ${ys.map((y) => (y * 100).toFixed(2).padStart(6)).join(' ')}`);
+    if (flat || (s.dir !== 0 && !mono)) note(`        expected: ${s.why}`);
   }
   note('P(collapse) = share of runs losing over half the population at some point.');
 }
