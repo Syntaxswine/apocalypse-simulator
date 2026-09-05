@@ -9,6 +9,9 @@ import { narrateEvent, summarise, ruleOfThumb, fmtPeople, pct } from './narrate.
 import { seedFromString } from './rng.js';
 
 const $ = (s) => document.querySelector(s);
+// Wide content scrolls in its own container rather than pushing the document
+// sideways.
+const wrap = (t) => { const d = document.createElement('div'); d.className = 'tablewrap'; d.append(t); return d; };
 const el = (tag, cls, text) => {
   const n = document.createElement(tag);
   if (cls) n.className = cls;
@@ -406,7 +409,7 @@ function renderCards() {
         tb.append(tr);
       }
       t.append(tb);
-      b.append(el('h3', null, 'Why this rate is not the cited rate'), t);
+      b.append(el('h3', null, 'Why this rate is not the cited rate'), wrap(t));
     }
 
     // tiers
@@ -432,7 +435,7 @@ function renderCards() {
       dr.append(dc); tb2.append(dr);
     }
     tt.append(tb2);
-    b.append(el('h3', null, 'Severity, given that it happens'), tt);
+    b.append(el('h3', null, 'Severity, given that it happens'), wrap(tt));
 
     // citations
     b.append(el('h3', null, 'Sources'));
@@ -473,7 +476,7 @@ function renderStatic() {
       el('td', 'num', b.value), el('td', null, b.method || ''));
     tb.append(tr);
   }
-  t.append(tb); host.append(t);
+  t.append(tb); host.append(wrap(t));
   for (const p of BENCH.commentary || []) host.append(el('p', 'note', p));
 
   // deep time

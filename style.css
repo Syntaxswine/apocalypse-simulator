@@ -285,7 +285,11 @@ canvas { display: block; max-width: 100%; }
 
 /* ── tables ───────────────────────────────────────────────────────────── */
 
-table { border-collapse: collapse; width: 100%; }
+/* Wide content scrolls inside its own box. The page body must never scroll
+   sideways — a horizontal scrollbar on the document is how a data-dense layout
+   quietly becomes unreadable on a narrow screen. */
+.tablewrap { overflow-x: auto; max-width: 100%; }
+table { border-collapse: collapse; width: 100%; min-width: 460px; }
 th, td { padding: 2px 8px 2px 0; text-align: left; vertical-align: top; }
 th {
   color: var(--dim);

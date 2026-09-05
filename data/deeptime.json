@@ -1,0 +1,100 @@
+{
+  "events": [
+    {
+      "when": "now",
+      "absolute": "for scale",
+      "name": "Life has already had 3.7 billion years, and the Sun is 4.57 billion years old",
+      "detail": "Everything below is dated from the present. The useful comparison to keep in mind is that the first item on this list arrives after roughly a quarter as much time again as life has already had — the biosphere is not young, it is late middle-aged. Solar luminosity has risen about 30% since the Sun reached the main sequence and continues to rise; that single fact drives the next three entries. ",
+      "source": "Feulner (2012), Reviews of Geophysics 50, RG2006 — 'The faint young Sun problem', giving Gough's standard luminosity law L(t)/L☉ = 1/(1 + (2/5)(1 − t/t☉))",
+      "url": "https://courses.seas.harvard.edu/climate/eli/Courses/EPS281r/Sources/Faint-young-sun-paradox/more/Feulner-2012-review.pdf"
+    },
+    {
+      "when": "1.0–1.86 Gyr",
+      "absolute": "the real deadline",
+      "name": "Carbon dioxide falls below the minimum for land plants",
+      "detail": "This, and not the Sun's death, is the end of the living world — and it happens while the Sun is still an unremarkable main-sequence star. Rising luminosity accelerates silicate weathering, which consumes atmospheric CO₂ and buries it as carbonate. The carbon-silicate thermostat that has stabilised Earth's climate for four billion years runs the CO₂ concentration down past the point where C3 photosynthesis fails, then C4. Macroscopic land life ends. The classical figure is about 1 Gyr; a 2024 recalculation extends it to 1.6–1.86 Gyr by allowing for a more realistic treatment of the weathering feedback. ",
+      "source": "Caldeira & Kasting (1992), Nature 360, 721–723; extended by Graham, Halevy & Abbot (2024), Planetary Science Journal (arXiv:2409.10714)",
+      "url": "https://arxiv.org/abs/2409.10714"
+    },
+    {
+      "when": "~1.5 Gyr",
+      "absolute": "38.30 mm/yr",
+      "name": "The Moon recedes far enough that Earth's axis goes chaotic",
+      "detail": "Ocean tides lag behind the Moon, so the tidal bulge pushes the Moon outward and slows Earth's spin — measured by lunar laser ranging at 38.30 ± 0.09 millimetres per year. Once the recession has gone far enough, Earth's precession period comes into resonance with the precession of its own orbital plane, and the spin axis enters a large chaotic zone. Obliquity, currently a well-behaved 23.4°, can then wander between 0° and more than 85°. The Moon is the reason Earth has had a stable climate at all, and it is leaving. ",
+      "source": "Néron de Surgy & Laskar (1997), A&A 318, 975–989; Laskar, Joutel & Robutel (1993), Nature 361, 615–617; recession rate from Williams et al. (2016)",
+      "url": "https://perso.imcce.fr/jacques-laskar/en/general-audience/earth-without-the-moon/"
+    },
+    {
+      "when": "1–2 Gyr, then 2.8 Gyr",
+      "absolute": "the oceans go",
+      "name": "Moist greenhouse, ocean loss, and the last microbes",
+      "detail": "Warming raises evaporation, which raises the greenhouse effect, which raises warming. In the moist greenhouse the stratosphere becomes humid enough that water is photodissociated and hydrogen escapes to space; in the runaway greenhouse the oceans simply boil. Three-dimensional climate modelling puts the runaway threshold at about 375 W/m², higher than earlier one-dimensional estimates — which buys time but does not change the destination. Modelled microbial refugia at high latitude and depth persist to roughly 2.8 Gyr. ",
+      "source": "Leconte, Forget, Charnay, Wordsworth & Pottier (2013), Nature 504, 268–271; O'Malley-James, Greaves, Raven & Cockell (2013), International Journal of Astrobiology 12(2), 99–112",
+      "url": "https://arxiv.org/abs/1312.3337"
+    },
+    {
+      "when": "3.87 / 5.86 Gyr",
+      "absolute": "and nothing happens",
+      "name": "Andromeda arrives, and the Solar System is fine",
+      "detail": "M31's transverse velocity was measured directly for the first time by comparing Hubble images taken five to seven years apart, and it is consistent with zero: the orbit is nearly radial. First pericentre at 3.87 (+0.42 / −0.32) Gyr, merger at 5.86 (+1.61 / −0.72) Gyr. This is the entry on the list that sounds catastrophic and is not — galaxies are almost entirely empty space, and the most likely outcome for the Sun is simply a wider orbit in the merger remnant (p = 85%). It is included precisely because it is the famous one, and it is the harmless one. ",
+      "source": "van der Marel, Besla, Cox, Sohn & Anderson (2012), ApJ 753:9 — 'The M31 Velocity Vector III'",
+      "url": "https://arxiv.org/abs/1205.6865"
+    },
+    {
+      "when": "7.59 Gyr",
+      "absolute": "Earth does not escape",
+      "name": "The Sun reaches the tip of the red giant branch",
+      "detail": "The Sun sheds 0.332 solar masses as a red giant, which weakens its gravitational hold and expands Earth's orbit — so the naive expectation is that Earth escapes. The coupled calculation says otherwise: tidal interaction with the giant's enormously extended envelope drags the planet inward faster than mass loss pushes it out, and Earth is engulfed. Note the ordering. By this point the biosphere has been gone for six billion years. The Sun's death is not the end of life on Earth; it is the disposal of the corpse. ",
+      "source": "Schröder & Connon Smith (2008), MNRAS 386, 155–163 — 'Distant future of the Sun and Earth revisited'",
+      "url": "https://arxiv.org/abs/0801.4031"
+    },
+    {
+      "when": "~22 Gyr",
+      "absolute": "conditional, and receding",
+      "name": "A Big Rip — only if dark energy is phantom, which now looks unlikely",
+      "detail": "If the dark-energy equation of state w sits below −1 and stays there, dark-energy density grows without bound and tears apart clusters, then galaxies, then the Solar System, then atoms, at a finite time. For w = −3/2 that is about 22 Gyr from now. But DESI's 2025 data release gives a 2.8–4.2σ preference for dark energy that evolves — phantom-like in the past, not phantom now — which removes the rip. Kept on the list as an honest live uncertainty rather than deleted: this is a number that has moved in the last two years. ",
+      "source": "Caldwell, Kamionkowski & Weinberg (2003), PRL 91, 071301; DESI Collaboration DR2 (2025), arXiv:2503.14738",
+      "url": "https://arxiv.org/abs/2503.14738"
+    },
+    {
+      "when": "10¹⁴ yr",
+      "absolute": "the lights go out",
+      "name": "The end of star formation",
+      "detail": "Galaxies convert gas into stars, and stars lock most of their mass permanently into degenerate remnants, so the gas reservoir is drawn down and never fully returned. The last to go are the very low-mass M dwarfs, which never have a red giant phase at all — they simply brighten, turn blue, and fade. Around 10¹⁴ years, both conventional star formation and conventional stellar evolution are over. ",
+      "source": "Adams & Laughlin (1997), Reviews of Modern Physics 69, 337–372 — 'A Dying Universe'",
+      "url": "https://arxiv.org/pdf/astro-ph/9701131"
+    },
+    {
+      "when": "10³⁷ yr",
+      "absolute": "if protons decay",
+      "name": "Degenerate matter evaporates from the inside",
+      "detail": "If protons decay — the expected first-order lifetime falls around 10³⁷ years, though the theoretical range is wide and no decay has ever been observed — then brown dwarfs, white dwarfs and neutron stars are consumed from within, glowing at around 10⁻¹² solar luminosities off the energy released. This is the entry with the largest genuine physics uncertainty on the whole list; the bound is a prediction, not a measurement. ",
+      "source": "Adams & Laughlin (1997), RMP 69, 337–372, §VI.A, giving 32 < η_P < 49 + 76(N−1)",
+      "url": "https://arxiv.org/pdf/astro-ph/9701131"
+    },
+    {
+      "when": "10⁶⁵ yr",
+      "absolute": "Hawking radiation",
+      "name": "Stellar-mass black holes finish evaporating",
+      "detail": "After the last stars and the last degenerate remnants, black holes dominate the energy and entropy production of the universe. Their lifetime scales as the cube of their mass, so stellar-mass holes are gone around 10⁶⁵ years and the largest supermassive ones persist to roughly 10¹⁰⁰. ",
+      "source": "Adams & Laughlin (1997), RMP 69, 337–372, §VI.B–D — 'The Black Hole Era, 38 < η < 100'",
+      "url": "https://arxiv.org/pdf/astro-ph/9701131"
+    },
+    {
+      "when": "10¹⁰⁰ yr",
+      "absolute": "the Dark Era",
+      "name": "Photons, neutrinos, electrons, positrons",
+      "detail": "Nothing structured remains. The universe is a thin and cooling gas of the lightest surviving particles, expanding and doing nothing in particular, for an unbounded time. This is heat death, and on current evidence it is the most likely ending of all — reached asymptotically, with no moment at which it can be said to have happened. ",
+      "source": "Adams & Laughlin (1997), RMP 69, 337–372",
+      "url": "https://arxiv.org/pdf/astro-ph/9701131"
+    },
+    {
+      "when": "10¹³⁹ yr",
+      "absolute": "and not before",
+      "name": "The vacuum decays",
+      "detail": "The measured Higgs and top masses place the electroweak vacuum in a metastable state: the Higgs quartic coupling runs negative above roughly 10¹⁰–10¹¹ GeV, so the vacuum we live in is a local minimum rather than the global one. A bubble of true vacuum can nucleate by quantum tunnelling and expand at the speed of light, and nothing inside it survives in any recognisable form. The first complete calculation of the lifetime gives 10¹³⁹ years, with 95% confidence of more than 10⁵⁸. This is the one item on the whole page that is genuinely unsurvivable and genuinely instantaneous — and it is also, by an overwhelming margin, the last thing to worry about. No collider can trigger it: cosmic rays have run the experiment at higher energies for billions of years. ",
+      "source": "Andreassen, Frost & Schwartz (2018), Phys. Rev. D 97, 056006; metastability from Degrassi et al. (2012) and Buttazzo et al. (2013); collider safety from Ellis, Giudice, Mangano, Tkachev & Wiedemann (2008), J. Phys. G 35, 115004",
+      "url": "https://arxiv.org/abs/1707.08124"
+    }
+  ]
+}
